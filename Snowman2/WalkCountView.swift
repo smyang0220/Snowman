@@ -19,19 +19,24 @@ struct WalkCountView: View {
     var snowmanName: String {
             dailySteps.last?.snowmanName ?? "스!노우맨"
         }
+    
+    var nowSpeed : Double {
+        dailySteps.last?.currentSpeed ?? 0
+    }
         
     
     var body: some View {
         VStack {
             Text(snowmanName)
             Text("현재 걸음수 \(todaySteps)")
+            Text("현재 속도 \(nowSpeed)")
             
             Button("새로운 시작") {
                 stepCounter.startNewCount()  // 새로운 시작 함수 호출
             }
             .foregroundColor(.blue)
             .padding()
-            
+            SnowmanView(currentSpeed: nowSpeed, currentSteps: todaySteps)
             List {
                 ForEach(dailySteps.sorted(by: { $0.date > $1.date })) { step in
                     VStack(alignment: .leading) {
@@ -48,6 +53,7 @@ struct WalkCountView: View {
         }
         .onAppear {
             stepCounter.startCounting()  // 일반 시작
+            stepCounter.calPace()
         }
         .padding()
     }

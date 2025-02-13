@@ -12,10 +12,13 @@ class StepCounter: ObservableObject {
     private let pedometer = CMPedometer()
     private let realm: Realm
     
+    private var timer: Timer?
+    @Published var currentSpeed: Double = 0
+    
     init() {
         // Realm 마이그레이션 설정
         let config = Realm.Configuration(
-            schemaVersion: 2,  // 스키마 버전 증가
+            schemaVersion: 3,  // 스키마 버전 증가
             migrationBlock: { migration, oldSchemaVersion in
                 if oldSchemaVersion < 1 {
                     migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
@@ -29,6 +32,11 @@ class StepCounter: ObservableObject {
                         newObject!["daysSpent"] = 0
                     }
                 }
+                if oldSchemaVersion < 3 {
+                                    migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
+                                        newObject?["currentSpeed"] = 0.0  // 새로운 컬럼 추가
+                                    }
+                                }
             }
         )
         
@@ -37,6 +45,10 @@ class StepCounter: ObservableObject {
         
         // 매일 daysSpent 업데이트
         updateDaysSpent()
+    }
+    
+    func calPace(){
+        print(CMPedometer.isPaceAvailable())
     }
     
     // OnAppear
@@ -97,27 +109,36 @@ class StepCounter: ObservableObject {
     }
     
     private func startPedometerUpdates(from startDate: Date) {
-        print("측정 시작 시간: \(startDate)")
-        
-        pedometer.startUpdates(from: startDate) { [weak self] data, error in
-            guard let self = self,
-                  let data = data else {
-                print("걸음수 업데이트 에러: \(error?.localizedDescription ?? "")")
-                return
-            }
-            
-            DispatchQueue.main.async {
-                let newSteps = Int(truncating: data.numberOfSteps)
-                self.updateLatestSteps(newSteps)
-            }
-        }
-    }
+           print("측정 시작 시간: \(startDate)")
+
+           pedometer.startUpdates(from: startDate) { [weak self] data, error in
+               guard let self = self, let data = data else {
+                   print("걸음수 업데이트 에러: \(error?.localizedDescription ?? "")")
+                   return
+               }
+
+               DispatchQueue.main.async {
+                   let newSteps = Int(truncating: data.numberOfSteps)
+                   if let pace = data.currentPace {
+                       let speedKmh = 3600 / pace.doubleValue  // km/h 변환
+                       self.updateLatestSteps(newSteps, speed: speedKmh)
+                   }
+                   else {
+                       // 걷지 않을 때는 속도를 0으로 설정
+                       self.updateLatestSteps(newSteps, speed: 0.0)
+                   }
+               }
+           }
+       }
     
-    private func updateLatestSteps(_ newSteps: Int) {
-        try? realm.write {
-            if let latestSteps = realm.objects(DailySteps.self).sorted(byKeyPath: "date", ascending: false).first {
-                latestSteps.steps = newSteps
+
+    
+    private func updateLatestSteps(_ newSteps: Int, speed: Double) {
+            try? realm.write {
+                if let latestSteps = realm.objects(DailySteps.self).sorted(byKeyPath: "date", ascending: false).first {
+                    latestSteps.steps = newSteps
+                    latestSteps.currentSpeed = speed  // 속도 저장
+                }
             }
         }
-    }
 }

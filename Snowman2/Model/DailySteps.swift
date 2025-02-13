@@ -17,7 +17,9 @@ class DailySteps : Object,ObjectKeyIdentifiable {
         @Persisted var measurementStartTime: Date
         @Persisted var targetSteps: Int  // 목표 걸음 수
         @Persisted var daysSpent: Int = 0  // 만드는데 걸린 날짜
+        @Persisted var currentSpeed: Double = 0.0  // 현재 속도 저장
         
+    
         override init() {
             super.init()
             self.date = Calendar.current.startOfDay(for: Date())
