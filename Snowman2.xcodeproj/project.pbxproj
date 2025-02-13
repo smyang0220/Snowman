@@ -49,7 +49,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		65ED3B742D5D322500331133 /* Exceptions for "Snowman2" folder in "Snowman2" target */ = {
+		65ED3BF02D5E2BF200331133 /* Exceptions for "Snowman2" folder in "Snowman2" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -59,14 +59,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		652FBDF22D5D25D800F10091 /* Snowman2 */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				65ED3B742D5D322500331133 /* Exceptions for "Snowman2" folder in "Snowman2" target */,
-			);
-			path = Snowman2;
-			sourceTree = "<group>";
-		};
 		652FBE032D5D25DA00F10091 /* Snowman2Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Snowman2Tests;
@@ -75,6 +67,14 @@
 		652FBE0D2D5D25DA00F10091 /* Snowman2UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Snowman2UITests;
+			sourceTree = "<group>";
+		};
+		65ED3BE52D5E2BF200331133 /* Snowman2 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				65ED3BF02D5E2BF200331133 /* Exceptions for "Snowman2" folder in "Snowman2" target */,
+			);
+			path = Snowman2;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -108,7 +108,7 @@
 		652FBDE72D5D25D800F10091 = {
 			isa = PBXGroup;
 			children = (
-				652FBDF22D5D25D800F10091 /* Snowman2 */,
+				65ED3BE52D5E2BF200331133 /* Snowman2 */,
 				652FBE032D5D25DA00F10091 /* Snowman2Tests */,
 				652FBE0D2D5D25DA00F10091 /* Snowman2UITests */,
 				652FBDF12D5D25D800F10091 /* Products */,
@@ -142,7 +142,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				652FBDF22D5D25D800F10091 /* Snowman2 */,
+				65ED3BE52D5E2BF200331133 /* Snowman2 */,
 			);
 			name = Snowman2;
 			packageProductDependencies = (
