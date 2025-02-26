@@ -8,7 +8,7 @@
 import CoreMotion
 import RealmSwift
 
-class StepCounter: ObservableObject {
+class StepManager: ObservableObject {
     private let pedometer = CMPedometer()
     private let realm: Realm
     
@@ -86,7 +86,7 @@ class StepCounter: ObservableObject {
             latestSteps.daysSpent = daysPassed
         }
     }
-    
+        
     func startNewCount() {
         // 목표 달성 체크
         if let currentSteps = realm.objects(DailySteps.self).sorted(byKeyPath: "date", ascending: false).first {

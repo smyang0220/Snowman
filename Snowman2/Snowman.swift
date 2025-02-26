@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct Snowman2App: App {
+struct Snowman: App {
     var body: some Scene {
         WindowGroup {
             WalkCountView()

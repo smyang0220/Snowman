@@ -59,14 +59,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		652FBE032D5D25DA00F10091 /* Snowman2Tests */ = {
+		652FBE032D5D25DA00F10091 /* SnowmanTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Snowman2Tests;
+			path = SnowmanTests;
 			sourceTree = "<group>";
 		};
-		652FBE0D2D5D25DA00F10091 /* Snowman2UITests */ = {
+		652FBE0D2D5D25DA00F10091 /* SnowmanUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Snowman2UITests;
+			path = SnowmanUITests;
 			sourceTree = "<group>";
 		};
 		65ED3BE52D5E2BF200331133 /* Snowman2 */ = {
@@ -109,8 +109,8 @@
 			isa = PBXGroup;
 			children = (
 				65ED3BE52D5E2BF200331133 /* Snowman2 */,
-				652FBE032D5D25DA00F10091 /* Snowman2Tests */,
-				652FBE0D2D5D25DA00F10091 /* Snowman2UITests */,
+				652FBE032D5D25DA00F10091 /* SnowmanTests */,
+				652FBE0D2D5D25DA00F10091 /* SnowmanUITests */,
 				652FBDF12D5D25D800F10091 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -166,7 +166,7 @@
 				652FBE022D5D25DA00F10091 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				652FBE032D5D25DA00F10091 /* Snowman2Tests */,
+				652FBE032D5D25DA00F10091 /* SnowmanTests */,
 			);
 			name = Snowman2Tests;
 			packageProductDependencies = (
@@ -189,7 +189,7 @@
 				652FBE0C2D5D25DA00F10091 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				652FBE0D2D5D25DA00F10091 /* Snowman2UITests */,
+				652FBE0D2D5D25DA00F10091 /* SnowmanUITests */,
 			);
 			name = Snowman2UITests;
 			packageProductDependencies = (

@@ -10,7 +10,7 @@ import RealmSwift
 
 struct WalkCountView: View {
     @ObservedResults(DailySteps.self) var dailySteps
-    private let stepCounter = StepCounter()
+    private let stepCounter = StepManager()
     
     var todaySteps: Int {
             dailySteps.last?.steps ?? 0
@@ -23,18 +23,24 @@ struct WalkCountView: View {
     var nowSpeed : Double {
         dailySteps.last?.currentSpeed ?? 0
     }
+    
+    var targetSteps : Int {
+        dailySteps.last?.targetSteps ?? 0
+    }
         
     
     var body: some View {
+        ShakeCountView()
         VStack {
             Text(snowmanName)
             Text("현재 걸음수 \(todaySteps)")
             Text("현재 속도 \(nowSpeed)")
+            Text("목표 걸은수 \(targetSteps)")
             
-            Button("새로운 시작") {
+            Button("완성하기") {
                 stepCounter.startNewCount()  // 새로운 시작 함수 호출
             }
-            .foregroundColor(.blue)
+            .disabled(todaySteps < targetSteps)
             .padding()
             SnowmanView(currentSpeed: nowSpeed, currentSteps: todaySteps)
             List {
