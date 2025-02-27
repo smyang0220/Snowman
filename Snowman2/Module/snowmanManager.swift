@@ -11,7 +11,7 @@ import SwiftUI
 func makeCamera() -> SCNNode {
     let cameraNode = SCNNode()
     cameraNode.camera = SCNCamera()
-    cameraNode.position = SCNVector3(x: 0, y: 1, z: 4)
+    cameraNode.position = SCNVector3(x: -12, y: 1, z: 6)
     cameraNode.camera?.automaticallyAdjustsZRange = false
     cameraNode.name = "camera"
     return cameraNode
@@ -78,11 +78,11 @@ func makeBackOmniLight() -> SCNNode {
 
 // MARK: 맵 노드 추가
 func addMap() -> SCNNode {
-    let scene = SCNScene(named: "Nests.scnassets/NestGroup.scn") ?? SCNScene()
-    scene.rootNode.name = "nest"
+    let scene = SCNScene(named: "Map.scnassets/map.scn") ?? SCNScene()
+    scene.rootNode.name = "map"
 
-    
-    moveNodeToPosition(node: scene.rootNode, x: 0.0, y: 0.0, z: 0.0) // x, y, z 값은 원하는 위치로 설정
+    // 눈사람 아래에 바닥이 위치해야해서 y축 음수
+    moveNodeToPosition(node: scene.rootNode, x: 0.0, y: -1.0, z: 0.0) // x, y, z 값은 원하는 위치로 설정
     return scene.rootNode
 }
 

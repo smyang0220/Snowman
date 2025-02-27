@@ -31,13 +31,13 @@ struct SnowmanView: UIViewRepresentable {
         func updateRotation(in scene: SCNScene) {
             if let snowNode = scene.rootNode.childNode(withName:"SnowBody", recursively: true) {
                 // 속도에 비례하는 회전 속도 설정
-                let rotationSpeed = Float(self.internalSpeed * 0.5)
+                let rotationSpeed = Float(self.internalSpeed * -0.5)
                 
                 // 회전 액션 키
                 let rotationActionKey = "rotationAction"
                 
                 // 애니메이션 방식으로 처리
-                if rotationSpeed > 0 {
+                if rotationSpeed < 0 {
                     // 새로운 회전 동작 생성
                     let rotateAction = SCNAction.rotateBy(x: CGFloat(rotationSpeed), y: 0, z: 0, duration: 1)
                     let repeatAction = SCNAction.repeatForever(rotateAction)
@@ -56,6 +56,36 @@ struct SnowmanView: UIViewRepresentable {
                 
                 print("현재스피드 \(rotationSpeed)")
             }
+            
+            
+            if let mapNode = scene.rootNode.childNode(withName:"map", recursively: true) {
+                // 속도에 비례하는 회전 속도 설정
+                let rotationSpeed = Float(self.internalSpeed * 0.1)
+                
+                // 회전 액션 키
+                let rotationActionKey = "rotationAction"
+                
+                // 애니메이션 방식으로 처리
+                if rotationSpeed > 0 {
+                    // 새로운 회전 동작 생성
+                    let rotateAction = SCNAction.rotateBy(x: 0, y: CGFloat(rotationSpeed), z: 0, duration: 1)
+                    let repeatAction = SCNAction.repeatForever(rotateAction)
+                    
+                    // 기존 액션이 있으면 부드럽게 전환
+                    if mapNode.action(forKey: rotationActionKey) != nil {
+                        SCNTransaction.begin()
+                        SCNTransaction.animationDuration = 0.3
+                        mapNode.removeAction(forKey: rotationActionKey)
+                        mapNode.runAction(repeatAction, forKey: rotationActionKey)
+                        SCNTransaction.commit()
+                    } else {
+                        mapNode.runAction(repeatAction, forKey: rotationActionKey)
+                    }
+                }
+                
+                print("현재스피드 \(rotationSpeed)")
+            }
+            
         }
         
         deinit {
@@ -104,13 +134,14 @@ struct SnowmanView: UIViewRepresentable {
             snowNode.runAction(scaleAction, forKey: "scaleAction")
             print("현재크기 \(scale)")
         }
+        
     }
     
     // 씬 설정 (나머지 코드는 동일)
     private func loadScene() -> SCNScene {
         let scene = SCNScene(named: "Snow.scnassets/snow.scn") ?? SCNScene()
-               
-        // 카메라 노드 추가
+        
+        
         let cameraNode = makeCamera()
         scene.rootNode.addChildNode(cameraNode)
         
