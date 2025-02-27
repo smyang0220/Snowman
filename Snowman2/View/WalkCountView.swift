@@ -42,7 +42,7 @@ struct WalkCountView: View {
                 // 전속력. 10
                 
                 Button("완성하기") {
-                    stepCounter.startNewCount()  // 새로운 시작 함수 호출
+                    stepCounter.completeSnowman()
                 }
                 .disabled(todaySteps < targetSteps)
                 .padding()
@@ -53,6 +53,7 @@ struct WalkCountView: View {
                         .resizable()
                         .scaledToFill()
                         .edgesIgnoringSafeArea(.all)
+                    Text("\(todaySteps)")
                     SnowmanView(currentSpeed: nowSpeed, currentSteps: todaySteps)
                 }
                 List {

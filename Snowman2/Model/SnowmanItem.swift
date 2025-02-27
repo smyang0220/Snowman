@@ -29,22 +29,7 @@ class SnowmanItem: Object, ObjectKeyIdentifiable {
     }
 }
 
-// 완성된 눈사람 모델
-class CompletedSnowman: Object, ObjectKeyIdentifiable {
-    @Persisted(primaryKey: true) var id: String = UUID().uuidString
-    @Persisted var name: String
-    @Persisted var date: Date
-    @Persisted var steps: Int
-    @Persisted var usedItems = List<String>() // 사용된 아이템 이름 목록
-    
-    convenience init(name: String, steps: Int, usedItems: [String]) {
-        self.init()
-        self.name = name
-        self.date = Date()
-        self.steps = steps
-        self.usedItems.append(objectsIn: usedItems)
-    }
-}
+
 
 // DailySteps 모델에 아이템 관련 필드 추가
 extension DailySteps {
@@ -71,3 +56,5 @@ extension DailySteps {
         return allItems.randomElement()
     }
 }
+
+
