@@ -21,6 +21,9 @@ struct WalkProgress: View {
     var targetSteps : Int {
         dailySteps.last?.targetSteps ?? 0
     }
+    var speed : Double {
+        dailySteps.last?.currentSpeed ?? 0
+    }
     
     var snowmanName: String {
             dailySteps.last?.snowmanName ?? "스!노우맨"
@@ -39,6 +42,9 @@ struct WalkProgress: View {
                 Text("\(todaySteps) / \(targetSteps) 걸음")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.black)
+                
+                Text("속도\(speed)")
+                    .foregroundColor(.black) // secondary 대신 black으로 변경
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()

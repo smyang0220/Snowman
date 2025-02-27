@@ -24,9 +24,6 @@ struct MainView: View {
             dailySteps.last?.snowmanName ?? "스!노우맨"
         }
     
-    var nowSpeed : Double {
-        dailySteps.last?.currentSpeed ?? 0
-    }
     
     var targetSteps : Int {
         dailySteps.last?.targetSteps ?? 0
@@ -40,14 +37,13 @@ struct MainView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack{
-                HStack{
-                    WalkProgress(dailySteps: $dailySteps, stepManager: stepManager)
-                }
-                
                 SnowmanView(
                     currentSpeed: currentSpeed,
                     currentSteps: currentSteps,
                     visibleItems: equip).frame(width: geometry.size.width, height: geometry.size.width )
+                HStack{
+                    WalkProgress(dailySteps: $dailySteps, stepManager: stepManager)
+                }
                 Spacer()
             }
             .onAppear{
