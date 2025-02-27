@@ -114,6 +114,11 @@ struct SnowmanView: UIViewRepresentable {
         let cameraNode = makeCamera()
         scene.rootNode.addChildNode(cameraNode)
         
+
+         let mapNode = addMap()
+            scene.rootNode.addChildNode(mapNode)
+        
+        
         // 쉐이딩 설정
         updateMaterialsToPhysicallyBased(for: scene)
         
@@ -133,72 +138,5 @@ struct SnowmanView: UIViewRepresentable {
         return scene
     }
     
-    // 카메라 노드 생성
-    func makeCamera() -> SCNNode {
-        let cameraNode = SCNNode()
-        cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(x: 0, y: 1, z: 4)
-        cameraNode.camera?.automaticallyAdjustsZRange = false
-        cameraNode.name = "camera"
-        return cameraNode
-    }
     
-    // 쉐이딩 파트
-    func updateMaterialsToPhysicallyBased(for scene: SCNScene) {
-        scene.rootNode.enumerateChildNodes { (node, _) in
-            for material in node.geometry?.materials ?? [] {
-                material.lightingModel = .physicallyBased
-                material.roughness.contents = 0.8 // 거칠기 값을 높여 매트하게 만듭니다.
-            }
-        }
-    }
-    
-    // 면광원 조명 추가
-    func makeAreaLight(intensity: CGFloat, name: String, position: SCNVector3, areaExtents: simd_float3) -> SCNNode {
-        let areaLightNode = SCNNode()
-        let areaLight = SCNLight()
-        areaLight.type = .area
-        areaLight.intensity = intensity
-        areaLight.areaType = .rectangle
-        areaLight.areaExtents = areaExtents
-        areaLightNode.light = areaLight
-        areaLightNode.position = position
-        areaLightNode.look(at: SCNVector3.init(x: 0.5, y: 0.6, z: 0.2))
-        areaLightNode.name = name
-        return areaLightNode
-    }
-    
-    // 점광원
-    func makeOmniLight() -> SCNNode {
-        let omniLightNode = SCNNode()
-        let omniLight = SCNLight()
-        omniLight.type = .omni
-        // 중간점검 800
-        omniLight.intensity = 100 // 조명 강도를 낮추어 부드러운 느낌
-        omniLight.color = UIColor.white.withAlphaComponent(0.5) // 은은한 조명
-        omniLightNode.light = omniLight
-        omniLightNode.position = SCNVector3(0, 10, 10) // 위치 설정
-        omniLightNode.name = "omniLight"
-        
-           
-        
-        return omniLightNode
-    }
-    
-    // 점광원
-    func makeBackOmniLight() -> SCNNode {
-        let omniLightNode = SCNNode()
-        let omniLight = SCNLight()
-        omniLight.type = .omni
-        // 중간점검 800
-        omniLight.intensity = 200 // 조명 강도를 낮추어 부드러운 느낌
-        omniLight.color = UIColor.white.withAlphaComponent(0.5) // 은은한 조명
-        omniLightNode.light = omniLight
-        omniLightNode.position = SCNVector3(0, 10, -10) // 위치 설정
-        omniLightNode.name = "omniLight"
-        
-           
-        
-        return omniLightNode
-    }
 }
