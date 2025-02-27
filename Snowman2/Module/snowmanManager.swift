@@ -90,3 +90,57 @@ func addMap() -> SCNNode {
 func moveNodeToPosition(node: SCNNode, x: Float, y: Float, z: Float) {
     node.position = SCNVector3(x, y, z)
 }
+
+
+// MARK: 노드 숨기기 관련 코드들
+// 모든 노드와 자식들 숨기기
+func hideAllNodes(node: SCNNode) {
+    node.isHidden = true
+    
+    for childNode in node.childNodes {
+        hideAllNodes(node: childNode)
+    }
+}
+
+// 특정 이름을 가진 노드들 표시
+func showNodesWithNames(_ names: [String], rootNode: SCNNode) {
+    if let nodeName = rootNode.name, names.contains(nodeName) {
+        rootNode.isHidden = false
+    }
+    
+    for childNode in rootNode.childNodes {
+        showNodesWithNames(names, rootNode: childNode)
+    }
+}
+
+// 노드와 모든 자식 노드 표시
+func showAllChildNodes(_ node: SCNNode) {
+    node.isHidden = false
+    
+    for childNode in node.childNodes {
+        showAllChildNodes(childNode)
+    }
+}
+
+// MARK: 모든 노드 출력
+func printNodeDetails(node: SCNNode, depth: Int = 0) {
+    // 현재 노드의 이름과 깊이를 출력합니다.
+    let indentation = String(repeating: "  ", count: depth)
+    print("\(indentation)Node name: \(node.name ?? "Unnamed")")
+    print("\(indentation)  IsHidden: \(node.isHidden)")
+    // 노드의 지오메트리가 있으면 지오메트리의 정보를 출력합니다.
+    if let geometry = node.geometry {
+        print("\(indentation)  Geometry: \(geometry.name ?? "Unnamed")")
+        for material in geometry.materials {
+            if let color = material.diffuse.contents as? UIColor {
+//                print("\(indentation)    Material color: \(color)")
+            }
+        }
+    }
+    
+    // 자식 노드가 있으면 자식 노드를 재귀적으로 탐색합니다.
+    for childNode in node.childNodes {
+        printNodeDetails(node: childNode, depth: depth + 1)
+    }
+}
+

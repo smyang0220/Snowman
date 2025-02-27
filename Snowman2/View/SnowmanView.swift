@@ -4,6 +4,7 @@ import SwiftUI
 struct SnowmanView: UIViewRepresentable {
     var currentSpeed: Double
     var currentSteps: Int
+    var visibleItems: [String] = []
     
     // Coordinator 클래스를 추가하여 타이머와 내부 속도를 관리
     class Coordinator: NSObject {
@@ -103,14 +104,19 @@ struct SnowmanView: UIViewRepresentable {
         let scnView = SCNView()
         let scene = loadScene()
         scnView.scene = scene
-        scnView.allowsCameraControl = true
-        
         scnView.backgroundColor = .clear
+//        scnView.allowsCameraControl = false
+        scnView.autoenablesDefaultLighting = false // 기본 조명 자동 활성화 비활성화
+//        scnView.defaultCameraController.interactionMode = .orbitTurntable
+        
+        
         
         // Coordinator에 뷰 참조 저장
         context.coordinator.view = scnView
         // 초기 속도 설정
         context.coordinator.internalSpeed = currentSpeed
+        
+     
         
         return scnView
     }
@@ -121,6 +127,70 @@ struct SnowmanView: UIViewRepresentable {
             print("씬 없음")
             return
         }
+        
+        let visibleItems = visibleItems
+        
+        hideAllNodes(node: scene.rootNode)
+            
+        // 2. camera와 light는 항상 표시
+        showNodesWithNames(["camera", "omniLight", "areaLight", "areaLight2", "snow", "map"], rootNode: scene.rootNode)
+            
+        // 3. snow 노드 표시
+        
+        // SnowBody와 SnowHead 노드 표시
+        if let snowBodyNode = scene.rootNode.childNode(withName: "SnowBody", recursively: false) {
+                    snowBodyNode.isHidden = false
+                    
+                    // SnowBody의 직계 자식 노드들(Hand, Hat, Stomach, Mouse, Nose, Eye 등) 표시
+                    for childNode in snowBodyNode.childNodes {
+                        childNode.isHidden = false
+                        
+                        // 각 자식 노드의 하위 노드들은 기본적으로 모두 숨김
+                        for grandChild in childNode.childNodes {
+                            grandChild.isHidden = true
+                        }
+                        
+                        // visibleItems에 포함된 항목만 표시
+                        for itemName in visibleItems {
+                            if let itemNode = childNode.childNode(withName: itemName, recursively: false) {
+                                itemNode.isHidden = false
+                                // 이 항목의 자식들도 모두 표시
+                                showAllChildNodes(itemNode)
+                            }
+                        }
+                    }
+                }
+                
+        // 머리부분 보이게하기
+        if let snowHeadNode = scene.rootNode.childNode(withName: "SnowHead", recursively: false) {
+                snowHeadNode.isHidden = false
+                    
+                // SnowHead의 직계 자식 노드들도 표시
+                for childNode in snowHeadNode.childNodes {
+                        childNode.isHidden = false
+                        
+                    // 각 자식 노드의 하위 노드들은 기본적으로 모두 숨김
+                    for grandChild in childNode.childNodes {
+                            grandChild.isHidden = true
+                        }
+                        
+                        // visibleItems에 포함된 항목만 표시
+                        for itemName in visibleItems {
+                            if let itemNode = childNode.childNode(withName: itemName, recursively: false) {
+                                itemNode.isHidden = false
+                                // 이 항목의 자식들도 모두 표시
+                                showAllChildNodes(itemNode)
+                            }
+                        }
+                    }
+                }
+            
+            // 4. map 노드와 그 모든 자식들 표시
+            if let mapNode = scene.rootNode.childNode(withName: "map", recursively: false) {
+                mapNode.isHidden = false
+                showAllChildNodes(mapNode)
+            }
+       
         
         // 외부에서 전달된 속도가 변경되면 내부 속도도 업데이트
         if context.coordinator.internalSpeed != currentSpeed {
@@ -135,11 +205,15 @@ struct SnowmanView: UIViewRepresentable {
             print("현재크기 \(scale)")
         }
         
+        printNodeDetails(node: scene.rootNode)
+        
     }
     
     // 씬 설정 (나머지 코드는 동일)
     private func loadScene() -> SCNScene {
         let scene = SCNScene(named: "Snow.scnassets/snow.scn") ?? SCNScene()
+        
+        scene.rootNode.name = "snow"
         
         
         let cameraNode = makeCamera()
