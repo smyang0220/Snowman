@@ -16,19 +16,6 @@ struct SnowmanView: UIViewRepresentable {
         init(currentSpeed : Double) {
             self.currentSpeed = currentSpeed
             super.init()
-            
-//            // 5초마다 속도를 5씩 증가시키는 타이머 설정
-//            timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
-//                guard let self = self else { return }
-//                // 속도 증가
-//                self.internalSpeed += 5.0
-//                print("속도 자동 증가: \(self.internalSpeed)")
-//                
-//                // 현재 씬 뷰가 있으면 회전 업데이트
-                if let scnView = self.view, let scene = scnView.scene {
-                    self.updateRotation(in: scene)
-                }
-//            }
         }
         
         func updateRotation(in scene: SCNScene) {
