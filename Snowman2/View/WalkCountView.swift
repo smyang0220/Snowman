@@ -30,12 +30,16 @@ struct WalkCountView: View {
         
     // ,.
     var body: some View {
-        ShakeCountView()
+//        ShakeCountView()
         VStack {
             Text(snowmanName)
             Text("현재 걸음수 \(todaySteps)")
             Text("현재 속도 \(nowSpeed)")
             Text("목표 걸은수 \(targetSteps)")
+            
+            
+            // 빠른속도 27.5
+            // 전속력. 10
             
             Button("완성하기") {
                 stepCounter.startNewCount()  // 새로운 시작 함수 호출

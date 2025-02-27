@@ -29,7 +29,7 @@ struct SnowmanView: UIViewRepresentable {
         }
         
         func updateRotation(in scene: SCNScene) {
-            if let snowNode = scene.rootNode.childNode(withName:"cupid", recursively: true) {
+            if let snowNode = scene.rootNode.childNode(withName:"SnowBody", recursively: true) {
                 // 속도에 비례하는 회전 속도 설정
                 let rotationSpeed = Float(self.internalSpeed * 0.5)
                 
@@ -129,7 +129,7 @@ struct SnowmanView: UIViewRepresentable {
     func makeCamera() -> SCNNode {
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 4)
+        cameraNode.position = SCNVector3(x: 0, y: 1, z: 4)
         cameraNode.camera?.automaticallyAdjustsZRange = false
         cameraNode.name = "camera"
         return cameraNode
