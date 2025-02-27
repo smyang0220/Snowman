@@ -75,6 +75,8 @@ struct SnowmanView: UIViewRepresentable {
         scnView.scene = scene
         scnView.allowsCameraControl = true
         
+        scnView.backgroundColor = .clear
+        
         // Coordinator에 뷰 참조 저장
         context.coordinator.view = scnView
         // 초기 속도 설정
@@ -122,6 +124,12 @@ struct SnowmanView: UIViewRepresentable {
         let areaLightNode2 = makeAreaLight(intensity: 6000, name: "areaLight2", position: SCNVector3(8, -8, 10), areaExtents: simd_float3(x: 7, y: 7, z: 1.0))
         scene.rootNode.addChildNode(areaLightNode2)
         
+        let makeOmniLightNode = makeOmniLight()
+        scene.rootNode.addChildNode(makeOmniLightNode)
+        
+        let makeBackOmniLightNode = makeBackOmniLight()
+        scene.rootNode.addChildNode(makeBackOmniLightNode)
+        
         return scene
     }
     
@@ -158,5 +166,39 @@ struct SnowmanView: UIViewRepresentable {
         areaLightNode.look(at: SCNVector3.init(x: 0.5, y: 0.6, z: 0.2))
         areaLightNode.name = name
         return areaLightNode
+    }
+    
+    // 점광원
+    func makeOmniLight() -> SCNNode {
+        let omniLightNode = SCNNode()
+        let omniLight = SCNLight()
+        omniLight.type = .omni
+        // 중간점검 800
+        omniLight.intensity = 100 // 조명 강도를 낮추어 부드러운 느낌
+        omniLight.color = UIColor.white.withAlphaComponent(0.5) // 은은한 조명
+        omniLightNode.light = omniLight
+        omniLightNode.position = SCNVector3(0, 10, 10) // 위치 설정
+        omniLightNode.name = "omniLight"
+        
+           
+        
+        return omniLightNode
+    }
+    
+    // 점광원
+    func makeBackOmniLight() -> SCNNode {
+        let omniLightNode = SCNNode()
+        let omniLight = SCNLight()
+        omniLight.type = .omni
+        // 중간점검 800
+        omniLight.intensity = 200 // 조명 강도를 낮추어 부드러운 느낌
+        omniLight.color = UIColor.white.withAlphaComponent(0.5) // 은은한 조명
+        omniLightNode.light = omniLight
+        omniLightNode.position = SCNVector3(0, 10, -10) // 위치 설정
+        omniLightNode.name = "omniLight"
+        
+           
+        
+        return omniLightNode
     }
 }
