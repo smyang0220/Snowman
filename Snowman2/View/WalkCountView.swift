@@ -12,50 +12,8 @@ struct WalkCountView: View {
     @ObservedResults(DailySteps.self) var dailySteps
     private let stepCounter = StepManager()
     
-    var todaySteps: Int {
-            dailySteps.last?.steps ?? 0
-        }
         
-    var snowmanName: String {
-            dailySteps.last?.snowmanName ?? "스!노우맨"
-        }
-    
-    var nowSpeed : Double {
-        dailySteps.last?.currentSpeed ?? 0
-    }
-    
-    var targetSteps : Int {
-        dailySteps.last?.targetSteps ?? 0
-    }
-        
-    // ,.
     var body: some View {
-//        ShakeCountView()
-            VStack {
-                Text(snowmanName)
-                Text("현재 걸음수 \(todaySteps)")
-                Text("현재 속도 \(nowSpeed)")
-                Text("목표 걸은수 \(targetSteps)")
-                
-                
-                // 빠른속도 27.5
-                // 전속력. 10
-                
-                Button("완성하기") {
-                    stepCounter.completeSnowman()
-                }
-                .disabled(todaySteps < targetSteps)
-                .padding()
-                
-                
-                ZStack{
-                    Image("Back")
-                        .resizable()
-                        .scaledToFill()
-                        .edgesIgnoringSafeArea(.all)
-                    Text("\(todaySteps)")
-                    SnowmanView(currentSpeed: nowSpeed, currentSteps: todaySteps)
-                }
                 List {
                     ForEach(dailySteps.sorted(by: { $0.date > $1.date })) { step in
                         VStack(alignment: .leading) {
@@ -70,10 +28,4 @@ struct WalkCountView: View {
                     }
                 }
             }
-            .onAppear {
-                stepCounter.startCounting()  // 일반 시작
-                stepCounter.calPace()
-            }
-            .padding()
     }
-}
