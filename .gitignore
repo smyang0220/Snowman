@@ -1,3 +1,4 @@
 # Ignore SceneKit files
 *.scn
 Snowman2/Snow.scnassets/*.scn
+*.png
