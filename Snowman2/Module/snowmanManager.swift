@@ -48,10 +48,10 @@ func makeOmniLight() -> SCNNode {
     let omniLight = SCNLight()
     omniLight.type = .omni
     // 중간점검 800
-    omniLight.intensity = 100 // 조명 강도를 낮추어 부드러운 느낌
+    omniLight.intensity = 200 // 조명 강도를 낮추어 부드러운 느낌
     omniLight.color = UIColor.white.withAlphaComponent(0.5) // 은은한 조명
     omniLightNode.light = omniLight
-    omniLightNode.position = SCNVector3(0, 10, 10) // 위치 설정
+    omniLightNode.position = SCNVector3(-12, 10, 10) // 위치 설정
     omniLightNode.name = "omniLight"
     
        
@@ -68,7 +68,7 @@ func makeBackOmniLight() -> SCNNode {
     omniLight.intensity = 200 // 조명 강도를 낮추어 부드러운 느낌
     omniLight.color = UIColor.white.withAlphaComponent(0.5) // 은은한 조명
     omniLightNode.light = omniLight
-    omniLightNode.position = SCNVector3(0, 10, -10) // 위치 설정
+    omniLightNode.position = SCNVector3(-12, 10, -10) // 위치 설정
     omniLightNode.name = "omniLight"
     
        
