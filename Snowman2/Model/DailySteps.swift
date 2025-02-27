@@ -18,7 +18,8 @@ class DailySteps : Object,ObjectKeyIdentifiable {
         @Persisted var targetSteps: Int  // 목표 걸음 수
         @Persisted var daysSpent: Int = 0  // 만드는데 걸린 날짜
         @Persisted var currentSpeed: Double = 0.0  // 현재 속도 저장
-        
+        @Persisted var equippedItems = List<String>() // 현재 착용 중인 아이템 이름 목록
+      
     
         override init() {
             super.init()
@@ -29,10 +30,12 @@ class DailySteps : Object,ObjectKeyIdentifiable {
             self.targetSteps = Self.generateRandomTarget()  // 랜덤 목표 설정
         }
         
-        // 랜덤 목표 걸음 수 생성 (5000~15000)
-        static func generateRandomTarget() -> Int {
+    // 랜덤 목표 걸음 수 생성 (5000~15000)
+    static func generateRandomTarget() -> Int {
             return Int.random(in: 5000...15000)
         }
+    
+    
     
     static func generateSnowmanName() -> String {
             let adjectives = ["행복한", "졸린", "신나는", "배고픈", "따뜻한", "차가운", "귀여운", "용감한", "웃긴", "현명한"]

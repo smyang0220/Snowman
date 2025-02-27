@@ -128,6 +128,9 @@ struct SnowmanView: UIViewRepresentable {
             return
         }
         
+        // 아이템 선택 감지
+        print("SnowmanView 업데이트: \(visibleItems)")
+        
         let visibleItems = visibleItems
         
         hideAllNodes(node: scene.rootNode)
