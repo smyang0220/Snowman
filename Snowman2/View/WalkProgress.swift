@@ -51,6 +51,8 @@ struct WalkProgress: View {
             .background(Color.white)
             .cornerRadius(16)
             .shadow(radius: 2)
+            HStack{
+                
                 
                 // 옷장 버튼
                 Button(action: {
@@ -67,6 +69,7 @@ struct WalkProgress: View {
                 }
                 .padding()
                 
+                // 완성 버튼
                 Button(action: {
                     stepManager.completeSnowman()
                 })
@@ -81,6 +84,8 @@ struct WalkProgress: View {
                 }
                 .padding()
                 .disabled(todaySteps < targetSteps)
+            }
+                
             }
             .onAppear {
                 stepManager.startCounting()  // 일반 시작

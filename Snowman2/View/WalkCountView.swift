@@ -9,8 +9,10 @@ import SwiftUI
 import RealmSwift
 
 struct WalkCountView: View {
+    @Environment(\.presentationMode) var presentationMode
+    
     @ObservedResults(DailySteps.self) var dailySteps
-    private let stepCounter = StepManager()
+    @StateObject var stepManager : StepManager
     
         
     var body: some View {
