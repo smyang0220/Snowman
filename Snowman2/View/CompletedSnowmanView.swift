@@ -102,23 +102,11 @@ struct SnowmanDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // 눈사람 이름 및 완성 날짜
-                VStack(alignment: .center, spacing: 5) {
-                    Image(systemName: "snow")
-                        .font(.system(size: 50))
-                        .foregroundColor(.blue)
-                        .padding(.bottom, 5)
-                    
-                    Text(record.name)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    
-                    Text("완성일: \(formatDate(record.completionDate))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
+                
+                RefrigeratorView(snowmanRecord: record)
+                                .frame(height: 300)
+                                .background(Color.white)
+                
                 
                 // 걸음 수 정보
                 InfoCard(title: "걸음 수 정보") {
@@ -136,7 +124,7 @@ struct SnowmanDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("냉동보관중인 눈사람")
+        .navigationTitle("\(record.name)")
         .navigationBarTitleDisplayMode(.inline)
     }
     

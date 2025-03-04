@@ -17,6 +17,16 @@ func makeCamera() -> SCNNode {
     return cameraNode
 }
 
+// 냉동실
+func makeCamera2() -> SCNNode {
+    let cameraNode = SCNNode()
+    cameraNode.camera = SCNCamera()
+    cameraNode.position = SCNVector3(x: 0, y: 1, z: 6)
+    cameraNode.camera?.automaticallyAdjustsZRange = false
+    cameraNode.name = "camera"
+    return cameraNode
+}
+
 // 쉐이딩 파트
 func updateMaterialsToPhysicallyBased(for scene: SCNScene) {
     scene.rootNode.enumerateChildNodes { (node, _) in
@@ -83,6 +93,16 @@ func addMap() -> SCNNode {
 
     // 눈사람 아래에 바닥이 위치해야해서 y축 음수
     moveNodeToPosition(node: scene.rootNode, x: 0.0, y: -1.0, z: 0.0) // x, y, z 값은 원하는 위치로 설정
+    return scene.rootNode
+}
+
+// MARK: 맵 노드 추가
+func addRefrigerator() -> SCNNode {
+    let scene = SCNScene(named: "Refrigerator.scnassets/refrigerator.scn") ?? SCNScene()
+    scene.rootNode.name = "refrigerator"
+
+    // 눈사람 아래에 바닥이 위치해야해서 y축 음수
+    moveNodeToPosition(node: scene.rootNode, x: 0.0, y: -3.0, z: 0.0) // x, y, z 값은 원하는 위치로 설정
     return scene.rootNode
 }
 
