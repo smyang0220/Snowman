@@ -123,35 +123,35 @@ class ItemManager: ObservableObject {
         addInitialItem("ButterflyHat", "나비 모자", "Hat", 1, "butterfly")
         
         // 손 카테고리
-        addInitialItem("BranchHands", "나뭇가지 손", "Hand", 0, "branch")
+        addInitialItem("BranchHands", "나뭇가지 손", "Hand", 1, "branch")
         addInitialItem("StickHands", "막대기 손", "Hand", 0, "stick")
         addInitialItem("UmbrellaHands", "우산 손", "Hand", 0, "umbrella")
         
         // 눈 카테고리
         addInitialItem("CoalEyes", "석탄 눈", "Eye", 0, "eye.fill")
-        addInitialItem("ButtonEyes", "단추 눈", "Eye", 1, "circle.fill")
+        addInitialItem("ButtonEyes", "단추 눈", "Eye", 0, "circle.fill")
         addInitialItem("CoinEyes", "동전 눈", "Eye", 1, "circle")
-        addInitialItem("FingerEyes", "손가락 눈", "Eye", 1, "hand.point.up.fill")
-        addInitialItem("GoldEyes", "금화 눈", "Eye", 2, "dollarsign.circle")
-        addInitialItem("StoneEyes", "돌 눈", "Eye", 2, "circle.dashed")
+        addInitialItem("FingerEyes", "손가락 눈", "Eye", 0, "hand.point.up.fill")
+        addInitialItem("GoldEyes", "금화 눈", "Eye", 0, "dollarsign.circle")
+        addInitialItem("StoneEyes", "돌 눈", "Eye", 0, "circle.dashed")
         
         // 코 카테고리
-        addInitialItem("CarrotNose", "당근 코", "Nose", 2, "triangle.fill")
-        addInitialItem("PencilNose", "연필 코", "Nose", 3, "pencil")
-        addInitialItem("PineconeNose", "솔방울 코", "Nose", 2, "leaf.fill")
+        addInitialItem("CarrotNose", "당근 코", "Nose", 0, "triangle.fill")
+        addInitialItem("PencilNose", "연필 코", "Nose", 0, "pencil")
+        addInitialItem("PineconeNose", "솔방울 코", "Nose", 0, "leaf.fill")
         addInitialItem("RedPebbleNose", "빨간 자갈 코", "Nose", 1, "circle.fill")
         addInitialItem("TangerineNose", "귤 코", "Nose", 1, "circle.fill")
-        addInitialItem("WoodenNose", "나무 코", "Nose", 2, "square.fill")
+        addInitialItem("WoodenNose", "나무 코", "Nose", 0, "square.fill")
         
         // 입 카테고리
-        addInitialItem("SimpleMouth", "심플 입", "Mouth", 10, "mouth.fill")
-        addInitialItem("StoneMouth", "돌 입", "Mouth", 10, "seal.fill")
-        addInitialItem("StrawberryMouth", "딸기 입", "Mouth", 10, "heart.fill")
-        addInitialItem("RibbonMouth", "리본 입", "Mouth", 10, "ribbon")
-        addInitialItem("BranchMouth", "나뭇가지 입", "Mouth", 10, "line.horizontal.3")
+        addInitialItem("SimpleMouth", "심플 입", "Mouth", 1, "mouth.fill")
+        addInitialItem("StoneMouth", "돌 입", "Mouth", 0, "seal.fill")
+        addInitialItem("StrawberryMouth", "딸기 입", "Mouth", 0, "heart.fill")
+        addInitialItem("RibbonMouth", "리본 입", "Mouth", 0, "ribbon")
+        addInitialItem("BranchMouth", "나뭇가지 입", "Mouth", 0, "line.horizontal.3")
         
         // 배 카테고리
-        addInitialItem("MoonButtons", "달 단추", "Stomach", 10, "moon.fill")
+        addInitialItem("MoonButtons", "달 단추", "Stomach", 1, "moon.fill")
         
         UserDefaults.standard.set(true, forKey: "hasInitializedItems")
     }
