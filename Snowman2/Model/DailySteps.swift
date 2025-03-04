@@ -19,8 +19,7 @@ class DailySteps : Object,ObjectKeyIdentifiable {
         @Persisted var daysSpent: Int = 0  // 만드는데 걸린 날짜
         @Persisted var currentSpeed: Double = 0.0  // 현재 속도 저장
         @Persisted var equippedItems = List<String>() // 현재 착용 중인 아이템 이름 목록
-      
-    
+        @Persisted var baseStepCount: Int = 0  // 눈사람 시작 시점의 기준 걸음 수
         override init() {
             super.init()
             self.date = Calendar.current.startOfDay(for: Date())
@@ -32,7 +31,7 @@ class DailySteps : Object,ObjectKeyIdentifiable {
         
     // 랜덤 목표 걸음 수 생성 (5000~15000)
     static func generateRandomTarget() -> Int {
-            return Int.random(in: 5000...15000)
+            return Int.random(in: 50...100)
         }
     
     

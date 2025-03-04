@@ -92,7 +92,7 @@ struct WalkProgress: View {
                 stepManager.calPace()
             }
             .sheet(isPresented: $showingWardrobe) {
-                SnowmanWardrobeView()
+                SnowmanWardrobeView(stepManager: stepManager)
                     .presentationDetents([.large, .height(480)])
             }
     }

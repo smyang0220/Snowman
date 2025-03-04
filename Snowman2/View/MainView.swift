@@ -2,61 +2,125 @@ import SwiftUI
 import RealmSwift
 
 struct MainView: View {
-    @ObservedResults(DailySteps.self) var dailySteps
     @StateObject private var stepManager = StepManager()
     @State private var showingNewItemAlert = false
     @State private var newItemName = ""
-    
+    @State private var navigateToCompletedSnowmen = false
+    @State private var showingWardrobe = false
+       
     // 집중 모드 관련 상태
     @State private var isRunningModeEnabled = false
     @State private var unlockStartTime: Date? = nil
     @State private var progressValue: Double = 0
     @State private var unlockTimer: Timer? = nil
     @State private var cooldownActive = false
-    
+       
     private let requiredHoldTime: Double = 5.0
     private let timerInterval: Double = 0.05
     
-    var currentSteps: Int {
-        dailySteps.last?.steps ?? 0
-    }
-    var currentSpeed: Double {
-        dailySteps.last?.currentSpeed ?? 0
-    }
-    var snowmanName: String {
-        dailySteps.last?.snowmanName ?? "스!노우맨"
-    }
-    
-    var targetSteps : Int {
-        dailySteps.last?.targetSteps ?? 0
-    }
-    
-    var equip : [String] {
-        Array(dailySteps.last?.equippedItems ?? List<String>())
-    }
-    
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             GeometryReader { geometry in
                 ZStack {
                     // 메인 콘텐츠
                     VStack {
                         SnowmanView(
-                            currentSpeed: currentSpeed,
-                            currentSteps: currentSteps,
-                            visibleItems: equip).frame(width: geometry.size.width, height: geometry.size.width)
-                        HStack {
-                            WalkProgress(dailySteps: $dailySteps, stepManager: stepManager)
-                        }
-                        NavigationLink(destination: WalkCountView(dailySteps: $dailySteps, stepManager: stepManager)){
-                            HStack{
-                                Text("move")
-                                    }
+                            currentSpeed: stepManager.currentSpeed,
+                            currentSteps: stepManager.currentSteps,
+                            visibleItems: stepManager.selectedItems)
+                            .frame(width: geometry.size.width, height: geometry.size.width)
+                        
+                        // WalkProgress 내용 통합
+                        VStack(spacing: 5) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("걸음수")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                                
+                                Text("\(stepManager.currentSteps) / \(stepManager.targetSteps) 걸음")
+                                    .font(.system(size: 32, weight: .bold))
+                                    .foregroundColor(.black)
+                                
+                                Text("현재 속도 \(String(format: "%.1f", stepManager.currentSpeed))")
+                                    .foregroundColor(.black)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(16)
+                            .shadow(radius: 2)
+                            
+                            HStack {
+                                // 옷장 버튼
+                                Button(action: {
+                                    showingWardrobe = true
+                                }) {
+                                    VStack {
+                                        Image(systemName: "bag")
+                                        Text("옷장")
+                                    }
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
+                                }
+                                .padding()
+                                
+                                Button(action: {
+                                    // 목표를 1000 걸음으로 설정
+                                    stepManager.updateTargetSteps(to: 10)
+                                }) {
+                                    Text("목표 걸음수 줄이기")
+                                        .foregroundColor(.white)
+                                        .padding()
+                                        .background(Color.orange)
+                                        .cornerRadius(10)
+                                }
+                                
+                                // 완성된 눈사람 목록 버튼
+                                Button(action: {
+                                    navigateToCompletedSnowmen = true
+                                }) {
+                                    VStack {
+                                        Image(systemName: "refrigerator.fill")
+                                        Text("냉동실")
+                                    }
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
+                                }
+                                .padding()
+                                
+                                // 완성 버튼
+                                Button(action: {
+                                    stepManager.completeSnowman()
+                                }) {
+                                    VStack {
+                                        Image(systemName: "snow")
+                                        Text("완성")
+                                    }
+                                    .padding()
+                                    .background(stepManager.currentSteps >= stepManager.targetSteps ? Color.blue : Color.gray)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
+                                }
+                                .padding()
+                                .disabled(stepManager.currentSteps < stepManager.targetSteps)
+                            }
+                        }.padding()
+                        
+                        // 숨겨진 네비게이션 링크 (완성된 눈사람 목록으로)
+                        NavigationLink(destination: CompletedSnowmenView(), isActive: $navigateToCompletedSnowmen) {
+                            EmptyView()
+                        }
+                        
                         Spacer()
                     }
                     .blur(radius: isRunningModeEnabled ? 1.5 : 0)
                     .onAppear {
+                        stepManager.requestMotionPermission()
+                        stepManager.calPace()
                         stepManager.itemManager.resetAllItemsQuantity()
                     }
                     .alert(isPresented: $showingNewItemAlert) {
@@ -72,6 +136,10 @@ struct MainView: View {
                             newItemName = stepManager.itemManager.newItemName
                             stepManager.itemManager.newItemAlert = false
                         }
+                    }
+                    .sheet(isPresented: $showingWardrobe) {
+                        SnowmanWardrobeView(stepManager: stepManager)
+                            .presentationDetents([.large, .height(480)])
                     }
                     
                     // 운동 모드 오버레이 (터치 차단)
@@ -148,13 +216,10 @@ struct MainView: View {
                             }
                         }.padding(10)
                         
-                        
-                        
                         Spacer()
                     }
-                }
+                }.background(Color.white)
             }
-            
         }
     }
     

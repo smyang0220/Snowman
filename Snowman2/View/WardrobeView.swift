@@ -8,22 +8,13 @@ import SwiftUI
 import RealmSwift
 
 struct SnowmanWardrobeView: View {
-    @ObservedObject var itemManager = ItemManager()
-    @ObservedResults(DailySteps.self) var dailySteps
+    @ObservedObject var stepManager: StepManager  // 추가
     @State private var selectedItems: [String] = []
     @State private var selectedCategory = "Hat"
     @Environment(\.presentationMode) var presentationMode
     
-    var todaySteps: Int {
-        dailySteps.last?.steps ?? 0
-    }
-    
-    var snowmanName: String {
-        dailySteps.last?.snowmanName ?? "스!노우맨"
-    }
-    
-    var nowSpeed: Double {
-        dailySteps.last?.currentSpeed ?? 0
+    var itemManager: ItemManager {  // 계산 속성으로 접근
+        return stepManager.itemManager
     }
     
     let categories = ["Hat", "Hand", "Eye", "Nose", "Mouth", "Stomach"]
@@ -171,11 +162,11 @@ struct SnowmanWardrobeView: View {
     
     // 눈사람 완성 처리
     private func completeSnowman() {
-        itemManager.completeSnowman(name: snowmanName, steps: todaySteps, selectedItems: selectedItems)
-        selectedItems = []
-        presentationMode.wrappedValue.dismiss()
+            stepManager.completeSnowman()
+            selectedItems = []
+            presentationMode.wrappedValue.dismiss()
+        }
     }
-    
     
     // 카테고리 표시 이름
     private func categoryDisplayName(_ category: String) -> String {
@@ -189,4 +180,4 @@ struct SnowmanWardrobeView: View {
         default: return category
         }
     }
-}
+
