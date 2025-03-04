@@ -22,7 +22,7 @@ class StepManager: ObservableObject {
     init() {
         // Realm 초기화 코드
         let config = Realm.Configuration(
-            schemaVersion: 7,  // 증가된 버전
+            schemaVersion: 8,  // 증가된 버전
             migrationBlock: { migration, oldSchemaVersion in
                 if oldSchemaVersion < 1 {
                     migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
@@ -57,6 +57,11 @@ class StepManager: ObservableObject {
                         newObject?["baseStepCount"] = 0  // 기존 데이터에 기본값 설정
                     }
                 }
+                if oldSchemaVersion < 8 {
+                           migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
+                               newObject?["nextTargetSteps"] = 0  // 기존 데이터에 기본값 설정
+                           }
+                       }
             }
         )
         
@@ -141,6 +146,18 @@ class StepManager: ObservableObject {
         }
     }
     
+    
+    // StepManager에 추가
+    func updateNextTargetSteps(to newTarget: Int) {
+        try? realm.write {
+            if let currentDailySteps = realm.objects(DailySteps.self).first {
+                currentDailySteps.nextTargetSteps = newTarget
+                
+                // UI 업데이트 트리거
+                self.objectWillChange.send()
+            }
+        }
+    }
     // 권한 요청
     func requestMotionPermission() {
         if CMMotionActivityManager.isActivityAvailable() {
@@ -390,6 +407,9 @@ class StepManager: ObservableObject {
         let currentDaysSpent = currentDailySteps.daysSpent
         let currentSpeed = currentDailySteps.currentSpeed
         let itemsList = self.selectedItems
+        let nextTarget = currentDailySteps.nextTargetSteps > 0 ?
+                        currentDailySteps.nextTargetSteps :
+                        DailySteps.generateRandomTarget()
         
         // 페도미터 업데이트 중지
         pedometer.stopUpdates()
@@ -423,7 +443,53 @@ class StepManager: ObservableObject {
             realm.delete(currentDailySteps)
         }
         
-        // 새 눈사람 시작
-        startNewCount()
+        // 저장된 nextTarget 값을 직접 전달하여 새 눈사람 시작
+        startNewCountWithTargetSteps(nextTarget)
+    }
+    
+    // 특정 목표 걸음수로 새 눈사람 시작하는 메서드 추가
+    func startNewCountWithTargetSteps(_ targetSteps: Int) {
+        // 페도미터 중지
+        pedometer.stopUpdates()
+        
+        let now = Date()
+        
+        // 정확한 현재 걸음 수를 쿼리 - 10초 전부터 현재까지의 데이터로 최근 걸음 수 정확히 파악
+        let tenSecondsAgo = now.addingTimeInterval(-10)
+        
+        pedometer.queryPedometerData(from: tenSecondsAgo, to: now) { [weak self] data, error in
+            guard let self = self else { return }
+            
+            // 현재 정확한 누적 걸음 수
+            let currentTotalSteps = data != nil ? Int(truncating: data!.numberOfSteps) : 0
+            print("새 눈사람 시작 - 현재 정확한 걸음 수: \(currentTotalSteps)")
+            print("설정된 목표 걸음수: \(targetSteps)")
+            
+            DispatchQueue.main.async {
+                // 새 DailySteps 생성
+                try? self.realm.write {
+                    // 기존 DailySteps 모두 제거
+                    let existingSteps = self.realm.objects(DailySteps.self)
+                    if !existingSteps.isEmpty {
+                        self.realm.delete(existingSteps)
+                    }
+                    
+                    // 새 DailySteps 생성하고 즉시 목표 걸음수 설정
+                    let newDailySteps = DailySteps()
+                    // 중요: 이 부분을 먼저 실행해야 함
+                    newDailySteps.targetSteps = targetSteps  // 랜덤값 대신 지정된 목표 걸음수 사용
+                    newDailySteps.steps = 0
+                    newDailySteps.baseStepCount = currentTotalSteps
+                    newDailySteps.measurementStartTime = now
+                    self.realm.add(newDailySteps)
+                }
+                
+                // 상태 업데이트
+                self.loadCurrentData()
+                
+                // 걸음 수 업데이트 시작 - 현재 시간부터
+                self.startPedometerUpdates(from: now)
+            }
+        }
     }
 }
