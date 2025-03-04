@@ -16,7 +16,7 @@ class SnowmanRecord: Object, ObjectKeyIdentifiable {
     @Persisted var steps: Int
     @Persisted var targetSteps: Int
     @Persisted var daysSpent: Int
-    @Persisted var averageSpeed: Double
+    @Persisted var averageSpeed: Double // 추후 추가
     @Persisted var usedItems = List<String>()
     
     convenience init(from dailySteps: DailySteps, usedItems: [String]) {
