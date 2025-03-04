@@ -7,6 +7,11 @@ struct MainView: View {
     @State private var newItemName = ""
     @State private var navigateToCompletedSnowmen = false
     @State private var showingWardrobe = false
+    
+    // 목표 걸음수
+    @State private var showingTargetPicker = false
+    @State private var selectedTargetSteps = 10 // 기본값 설정
+
        
     // 집중 모드 관련 상태
     @State private var isRunningModeEnabled = false
@@ -17,6 +22,12 @@ struct MainView: View {
        
     private let requiredHoldTime: Double = 5.0
     private let timerInterval: Double = 0.05
+    
+    // 걸음수
+    private func stepOptions() -> [Int] {
+        // 100부터 20000까지 100단위로 값 생성
+        return stride(from: 100, through: 20000, by: 100).map { $0 }
+    }
     
     var body: some View {
         NavigationStack {
@@ -85,13 +96,45 @@ struct MainView: View {
                                 .padding()
                                 
                                 Button(action: {
-                                     stepManager.updateTargetSteps(to: 10)
+                                    // 팝업 시트 표시
+                                    showingTargetPicker = true
                                 }) {
-                                    Text("목표 걸음수 줄이기")
+                                    Text("다음 목표 걸음수 설정")
                                         .foregroundColor(.white)
                                         .padding()
                                         .background(Color.orange)
                                         .cornerRadius(10)
+                                }
+                                .sheet(isPresented: $showingTargetPicker) {
+                                    VStack(spacing: 20) {
+                                        Text("다음 눈사람의 목표 걸음수를 선택하세요")
+                                            .font(.headline)
+                                            .padding(.top)
+                                        
+                                        Picker("목표 걸음수", selection: $selectedTargetSteps) {
+                                            ForEach(stepOptions(), id: \.self) { steps in
+                                                Text("\(steps) 걸음").tag(steps)
+                                            }
+                                        }
+                                        .pickerStyle(WheelPickerStyle())
+                                        
+                                        HStack {
+                                            Button("취소") {
+                                                showingTargetPicker = false
+                                            }
+                                            .padding()
+                                            
+                                            Button("확인") {
+                                                // 선택한 값으로 다음 목표 걸음수 설정
+                                                stepManager.updateNextTargetSteps(to: selectedTargetSteps)
+                                                showingTargetPicker = false
+                                            }
+                                            .padding()
+                                            .foregroundColor(.blue)
+                                            .fontWeight(.bold)
+                                        }
+                                    }
+                                    .presentationDetents([.height(300)])
                                 }
                                 
                                 // 완성된 눈사람 목록 버튼
