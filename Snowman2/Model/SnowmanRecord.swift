@@ -11,15 +11,23 @@ import Foundation
 class SnowmanRecord: Object, ObjectKeyIdentifiable {
     @Persisted(primaryKey: true) var id: String = UUID().uuidString
     @Persisted var name: String
-    @Persisted var date: Date
+    @Persisted var completionDate: Date
+    @Persisted var creationDate: Date
     @Persisted var steps: Int
-    @Persisted var usedItems = List<String>() // 사용된 아이템 이름 목록
+    @Persisted var targetSteps: Int
+    @Persisted var daysSpent: Int
+    @Persisted var averageSpeed: Double
+    @Persisted var usedItems = List<String>()
     
-    convenience init(name: String, steps: Int, usedItems: [String]) {
+    convenience init(from dailySteps: DailySteps, usedItems: [String]) {
         self.init()
-        self.name = name
-        self.date = Date()
-        self.steps = steps
+        self.name = dailySteps.snowmanName
+        self.completionDate = Date()
+        self.creationDate = dailySteps.measurementStartTime
+        self.steps = dailySteps.steps
+        self.targetSteps = dailySteps.targetSteps
+        self.daysSpent = dailySteps.daysSpent
+        self.averageSpeed = dailySteps.currentSpeed
         self.usedItems.append(objectsIn: usedItems)
     }
 }

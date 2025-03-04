@@ -41,47 +41,67 @@ class ItemManager: ObservableObject {
     private var lastStepCount = 0
     
     init(realm: Realm? = nil) {
-            if let providedRealm = realm {
-                self.realm = providedRealm
-            } else {
-                // 자체적으로 Realm 초기화 (StepManager와 동일한 설정 사용)
-                let config = Realm.Configuration(
-                    schemaVersion: 5,
-                    migrationBlock: { migration, oldSchemaVersion in
-                        if oldSchemaVersion < 1 {
-                            migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
-                                newObject!["measurementStartTime"] = Date()
-                            }
-                        }
-                        if oldSchemaVersion < 2 {
-                            migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
-                                // 새로운 필드들에 기본값 설정
-                                newObject!["targetSteps"] = DailySteps.generateRandomTarget()
-                                newObject!["daysSpent"] = 0
-                            }
-                        }
-                        if oldSchemaVersion < 3 {
-                            migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
-                                newObject?["currentSpeed"] = 0.0  // 새로운 컬럼 추가
-                            }
-                        }
-                        if oldSchemaVersion < 4 {
-                            migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
-                                let equippedItems = RealmSwift.List<String>()
-                                newObject?["equippedItems"] = equippedItems
-                            }
-                        }
-                        if oldSchemaVersion < 5 {
-                            // 추가 마이그레이션이 필요한 경우
+        if let providedRealm = realm {
+            self.realm = providedRealm
+        } else {
+            // 스키마 버전을 6으로 증가시키고 마이그레이션 로직 추가
+            let config = Realm.Configuration(
+                schemaVersion: 6, // 스키마 버전 증가
+                migrationBlock: { migration, oldSchemaVersion in
+                    if oldSchemaVersion < 1 {
+                        migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
+                            newObject!["measurementStartTime"] = Date()
                         }
                     }
-                )
-                
-                self.realm = try! Realm(configuration: config)
-            }
+                    if oldSchemaVersion < 2 {
+                        migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
+                            newObject!["targetSteps"] = DailySteps.generateRandomTarget()
+                            newObject!["daysSpent"] = 0
+                        }
+                    }
+                    if oldSchemaVersion < 3 {
+                        migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
+                            newObject?["currentSpeed"] = 0.0
+                        }
+                    }
+                    if oldSchemaVersion < 4 {
+                        migration.enumerateObjects(ofType: DailySteps.className()) { oldObject, newObject in
+                            let equippedItems = RealmSwift.List<String>()
+                            newObject?["equippedItems"] = equippedItems
+                        }
+                    }
+                    if oldSchemaVersion < 5 {
+                        // 기존 마이그레이션 코드
+                    }
+                    
+                    // 스키마 버전 6에 대한 마이그레이션 - SnowmanRecord 클래스 변경
+                    if oldSchemaVersion < 6 {
+                        migration.enumerateObjects(ofType: SnowmanRecord.className()) { oldObject, newObject in
+                            // 'date' 속성 값을 새로운 'completionDate' 속성으로 이동
+                            if let oldDate = oldObject?["date"] as? Date {
+                                newObject?["completionDate"] = oldDate
+                                // 'creationDate'에 임시로 같은 날짜 사용 (정확한 생성 날짜는 없으므로)
+                                newObject?["creationDate"] = oldDate
+                            } else {
+                                // 날짜 정보가 없으면 현재 날짜 사용
+                                newObject?["completionDate"] = Date()
+                                newObject?["creationDate"] = Date()
+                            }
+                            
+                            // 새로운 필드에 기본값 설정
+                            newObject?["targetSteps"] = oldObject?["steps"] as? Int ?? 10000 // 목표를 현재 걸음수로 가정
+                            newObject?["daysSpent"] = 1 // 기본적으로 1일로 설정
+                            newObject?["averageSpeed"] = 0.0 // 기본 속도
+                        }
+                    }
+                }
+            )
             
-            initializeItems()
+            self.realm = try! Realm(configuration: config)
         }
+        
+        initializeItems()
+    }
     
     // 모든 아이템 초기화 (앱 첫 실행 시)
     private func initializeItems() {
@@ -225,24 +245,36 @@ class ItemManager: ObservableObject {
            return []
        }
        
-       // 눈사람 완성 (선택된 아이템 사용) - 수정됨
-       func completeSnowman(name: String, steps: Int, selectedItems: [String]) {
-           // 아이템 사용 (수량 감소)
-           for itemName in selectedItems {
-               useItem(named: itemName)
-           }
-           
-           // 완성된 눈사람 저장
-           let snowmanRecord = SnowmanRecord(name: name, steps: steps, usedItems: selectedItems)
-           try? realm.write {
-               realm.add(snowmanRecord)
-               
-               // 새 눈사람 생성 시 장착 아이템 초기화
-               if let currentSteps = realm.objects(DailySteps.self).sorted(byKeyPath: "date", ascending: false).first {
-                   currentSteps.equippedItems.removeAll()
-               }
-           }
-       }
+       // 눈사람 완성 (선택된 아이템 사용)
+    func completeSnowman(from dailySteps: DailySteps, selectedItems: [String]) {
+            // 아이템 사용 (수량 감소)
+            for itemName in selectedItems {
+                useItem(named: itemName)
+            }
+            
+            // 완성된 눈사람 저장
+            let snowmanRecord = SnowmanRecord(from: dailySteps, usedItems: selectedItems)
+            try? realm.write {
+                realm.add(snowmanRecord)
+                
+                // 현재 DailySteps 초기화 (새 눈사람 시작)
+                resetCurrentDailySteps()
+            }
+        }
+    
+    // 현재 DailySteps 초기화 및 새로 생성
+        private func resetCurrentDailySteps() {
+            try? realm.write {
+                // 현재 DailySteps 삭제 (선택사항)
+                if let currentSteps = realm.objects(DailySteps.self).first {
+                    realm.delete(currentSteps)
+                }
+                
+                // 새 DailySteps 생성
+                let newDailySteps = DailySteps()
+                realm.add(newDailySteps)
+            }
+        }
     
     // 모든 아이템 수량을 10개로 설정 (테스트용)
     func resetAllItemsQuantity() {
