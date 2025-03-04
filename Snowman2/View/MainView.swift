@@ -32,17 +32,35 @@ struct MainView: View {
                         
                         // WalkProgress 내용 통합
                         VStack(spacing: 5) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("걸음수")
-                                    .font(.subheadline)
-                                    .foregroundColor(.black)
-                                
-                                Text("\(stepManager.currentSteps) / \(stepManager.targetSteps) 걸음")
-                                    .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(.black)
-                                
-                                Text("현재 속도 \(String(format: "%.1f", stepManager.currentSpeed))")
-                                    .foregroundColor(.black)
+                            HStack(spacing: 8) {
+                                VStack(alignment: .leading){
+                                    Text("걸음수")
+                                        .font(.subheadline)
+                                        .foregroundColor(.black)
+                                    
+                                    Text("\(stepManager.currentSteps) / \(stepManager.targetSteps) 걸음")
+                                        .font(.system(size: 32, weight: .bold))
+                                        .foregroundColor(.black)
+                                    
+                                    Text("현재 속도 \(String(format: "%.1f", stepManager.currentSpeed))")
+                                        .foregroundColor(.black)
+                                }
+                                Spacer()
+                                // 완성 버튼
+                                Button(action: {
+                                    stepManager.completeSnowman()
+                                }) {
+                                    VStack {
+                                        Image(systemName: "snow")
+                                        Text("완성")
+                                    }
+                                    .padding()
+                                    .background(stepManager.currentSteps >= stepManager.targetSteps ? Color.blue : Color.gray)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
+                                }
+                                .padding()
+                                .disabled(stepManager.currentSteps < stepManager.targetSteps)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()
@@ -67,8 +85,7 @@ struct MainView: View {
                                 .padding()
                                 
                                 Button(action: {
-                                    // 목표를 1000 걸음으로 설정
-                                    stepManager.updateTargetSteps(to: 10)
+                                     stepManager.updateTargetSteps(to: 10)
                                 }) {
                                     Text("목표 걸음수 줄이기")
                                         .foregroundColor(.white)
@@ -92,21 +109,7 @@ struct MainView: View {
                                 }
                                 .padding()
                                 
-                                // 완성 버튼
-                                Button(action: {
-                                    stepManager.completeSnowman()
-                                }) {
-                                    VStack {
-                                        Image(systemName: "snow")
-                                        Text("완성")
-                                    }
-                                    .padding()
-                                    .background(stepManager.currentSteps >= stepManager.targetSteps ? Color.blue : Color.gray)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(12)
-                                }
-                                .padding()
-                                .disabled(stepManager.currentSteps < stepManager.targetSteps)
+                               
                             }
                         }.padding()
                         
