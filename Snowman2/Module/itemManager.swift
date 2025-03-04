@@ -11,7 +11,7 @@ import SwiftUI
 
 // 아이템 관련 상수와 유틸리티 함수
 class ItemConstants {
-    static let itemDropRate: Double = 0.001 // 0.1%
+    static let itemDropRate: Double = 0.01 // 1%
     
     static func getRandomItem() -> String? {
         let allItems = [
@@ -39,6 +39,7 @@ class ItemManager: ObservableObject {
     @Published var newItemAlert = false
     @Published var newItemName = ""
     private var lastStepCount = 0
+    private let lastStepCountKey = "lastStepCountKey"
     
     init(realm: Realm? = nil) {
         if let providedRealm = realm {
@@ -97,6 +98,9 @@ class ItemManager: ObservableObject {
                 }
             )
             
+            
+            self.lastStepCount = UserDefaults.standard.integer(forKey: lastStepCountKey)
+                    
             self.realm = try! Realm(configuration: config)
         }
         
@@ -105,35 +109,39 @@ class ItemManager: ObservableObject {
     
     // 모든 아이템 초기화 (앱 첫 실행 시)
     private func initializeItems() {
+        
         // 이미 아이템이 존재하면 초기화하지 않음
-        if realm.objects(SnowmanItem.self).count > 0 {
-            return
-        }
+        let isFirstRun = UserDefaults.standard.bool(forKey: "hasInitializedItems") == false
+            
+            // 이미 아이템이 존재하고 처음 실행이 아니면 초기화하지 않음
+            if realm.objects(SnowmanItem.self).count > 0 && !isFirstRun {
+                return
+            }
         
         // 모자 카테고리
-        addInitialItem("CowboyHat", "카우보이 모자", "Hat", 10, "hat.cowboy")
-        addInitialItem("ButterflyHat", "나비 모자", "Hat", 10, "butterfly")
+        addInitialItem("CowboyHat", "카우보이 모자", "Hat", 0, "hat.cowboy")
+        addInitialItem("ButterflyHat", "나비 모자", "Hat", 1, "butterfly")
         
         // 손 카테고리
-        addInitialItem("BranchHands", "나뭇가지 손", "Hand", 10, "branch")
-        addInitialItem("StickHands", "막대기 손", "Hand", 10, "stick")
-        addInitialItem("UmbrellaHands", "우산 손", "Hand", 10, "umbrella")
+        addInitialItem("BranchHands", "나뭇가지 손", "Hand", 0, "branch")
+        addInitialItem("StickHands", "막대기 손", "Hand", 0, "stick")
+        addInitialItem("UmbrellaHands", "우산 손", "Hand", 0, "umbrella")
         
         // 눈 카테고리
-        addInitialItem("CoalEyes", "석탄 눈", "Eye", 10, "eye.fill")
-        addInitialItem("ButtonEyes", "단추 눈", "Eye", 10, "circle.fill")
-        addInitialItem("CoinEyes", "동전 눈", "Eye", 10, "circle")
-        addInitialItem("FingerEyes", "손가락 눈", "Eye", 10, "hand.point.up.fill")
-        addInitialItem("GoldEyes", "금화 눈", "Eye", 10, "dollarsign.circle")
-        addInitialItem("StoneEyes", "돌 눈", "Eye", 10, "circle.dashed")
+        addInitialItem("CoalEyes", "석탄 눈", "Eye", 0, "eye.fill")
+        addInitialItem("ButtonEyes", "단추 눈", "Eye", 1, "circle.fill")
+        addInitialItem("CoinEyes", "동전 눈", "Eye", 1, "circle")
+        addInitialItem("FingerEyes", "손가락 눈", "Eye", 1, "hand.point.up.fill")
+        addInitialItem("GoldEyes", "금화 눈", "Eye", 2, "dollarsign.circle")
+        addInitialItem("StoneEyes", "돌 눈", "Eye", 2, "circle.dashed")
         
         // 코 카테고리
-        addInitialItem("CarrotNose", "당근 코", "Nose", 10, "triangle.fill")
-        addInitialItem("PencilNose", "연필 코", "Nose", 10, "pencil")
-        addInitialItem("PineconeNose", "솔방울 코", "Nose", 10, "leaf.fill")
-        addInitialItem("RedPebbleNose", "빨간 자갈 코", "Nose", 10, "circle.fill")
-        addInitialItem("TangerineNose", "귤 코", "Nose", 10, "circle.fill")
-        addInitialItem("WoodenNose", "나무 코", "Nose", 10, "square.fill")
+        addInitialItem("CarrotNose", "당근 코", "Nose", 2, "triangle.fill")
+        addInitialItem("PencilNose", "연필 코", "Nose", 3, "pencil")
+        addInitialItem("PineconeNose", "솔방울 코", "Nose", 2, "leaf.fill")
+        addInitialItem("RedPebbleNose", "빨간 자갈 코", "Nose", 1, "circle.fill")
+        addInitialItem("TangerineNose", "귤 코", "Nose", 1, "circle.fill")
+        addInitialItem("WoodenNose", "나무 코", "Nose", 2, "square.fill")
         
         // 입 카테고리
         addInitialItem("SimpleMouth", "심플 입", "Mouth", 10, "mouth.fill")
@@ -144,6 +152,8 @@ class ItemManager: ObservableObject {
         
         // 배 카테고리
         addInitialItem("MoonButtons", "달 단추", "Stomach", 10, "moon.fill")
+        
+        UserDefaults.standard.set(true, forKey: "hasInitializedItems")
     }
 
     private func addInitialItem(_ name: String, _ displayName: String, _ category: String, _ quantity: Int = 10, _ imageName: String) {
@@ -155,25 +165,28 @@ class ItemManager: ObservableObject {
     
     // 걸음 수에 따른 아이템 획득 확인
     func checkItemDrop(currentSteps: Int) {
-        // 새로 증가한 걸음 수만큼 아이템 드롭 확률 계산
-        let stepsDifference = currentSteps - lastStepCount
-        
-        if stepsDifference > 0 {
-            for _ in 0..<stepsDifference {
-                if Double.random(in: 0...1) <= ItemConstants.itemDropRate {
-                    if let randomItemName = ItemConstants.getRandomItem() {
-                        addItem(named: randomItemName)
-                        
-                        // UI 업데이트를 위한 발행
-                        newItemName = getItemDisplayName(randomItemName)
-                        newItemAlert = true
+            // 새로 증가한 걸음 수만큼 아이템 드롭 확률 계산
+            let stepsDifference = currentSteps - lastStepCount
+            
+            if stepsDifference > 0 {
+                // 현재 걸음 수가 이전 걸음 수보다 큰 경우에만 아이템 획득 로직 실행
+                for _ in 0..<stepsDifference {
+                    if Double.random(in: 0...1) <= ItemConstants.itemDropRate {
+                        if let randomItemName = ItemConstants.getRandomItem() {
+                            addItem(named: randomItemName)
+                            
+                            // UI 업데이트를 위한 발행
+                            newItemName = getItemDisplayName(randomItemName)
+                            newItemAlert = true
+                        }
                     }
                 }
+                
+                // 마지막 걸음 수 업데이트 및 저장
+                lastStepCount = currentSteps
+                UserDefaults.standard.set(lastStepCount, forKey: lastStepCountKey)
             }
-            
-            lastStepCount = currentSteps
         }
-    }
     
     // 아이템 이름으로 표시 이름 가져오기
     func getItemDisplayName(_ name: String) -> String {
