@@ -25,6 +25,8 @@ struct MainView: View {
     private let requiredHoldTime: Double = 5.0
     private let timerInterval: Double = 0.05
     
+    @State private var completedSnowmanRecord: SnowmanRecord?
+    
     // 걸음수
     private func stepOptions() -> [Int] {
         // 100부터 20000까지 100단위로 값 생성
@@ -314,7 +316,7 @@ struct MainView: View {
                             isShowing: $showingCompletionPopup,
                             showTargetPicker: $showingTargetPicker,
                             snowmanName: stepManager.snowmanName,
-                            snowmanItems: stepManager.selectedItems
+                            snowmanItems: completedSnowmanRecord?.usedItems.map { $0 } ?? []
                         )
                         .transition(.opacity)
                         .zIndex(100) // 운동 모드 오버레이보다 위에 표시
@@ -409,10 +411,6 @@ struct MainView: View {
     
     // 완성 버튼 클릭 시 호출되는 메서드
     func completeSnowmanWithAnimation() {
-        // 현재 눈사람 정보 임시 저장
-        let currentName = stepManager.snowmanName
-        let currentItems = stepManager.selectedItems
-        
         // 팝업 표시
         withAnimation {
             showingCompletionPopup = true
@@ -420,7 +418,13 @@ struct MainView: View {
         
         // 2초 후에 실제 완성 처리 (프로그레스 바가 찰 때까지 대기)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            stepManager.completeSnowman()
+            // 눈사람 레코드 생성 및 완성 처리
+            let snowmanRecord = stepManager.completeSnowman()
+            
+            // 레코드가 생성된 후 팝업 데이터 업데이트
+            DispatchQueue.main.async {
+                self.completedSnowmanRecord = snowmanRecord
+            }
         }
     }
     
@@ -538,7 +542,7 @@ struct SnowmanCompletionPopup: View {
                 if !showCompletionView {
                     // 로딩 뷰
                     VStack(spacing: 24) {
-                        Text("눈사람 합치는 중...")
+                        Text("눈사람 만드는중...")
                             .font(.headline)
                             .foregroundColor(.white)
                         
@@ -586,36 +590,32 @@ struct SnowmanCompletionPopup: View {
                             Image("snow")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 150, height: 150)
-                            
-                            ForEach(snowmanItems, id: \.self) { itemName in
-                                Image(itemName)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 150, height: 150)
-                            }
-                            
-                            // 떨어지는 도트 애니메이션
-                            Circle()
-                                .fill(Color.white)
-                                .frame(width: 12, height: 12)
-                                .offset(y: dotOffset)
-                                .opacity(dotOffset > 20 ? 0 : 1)
-                                .onAppear {
-                                    withAnimation(Animation.easeIn(duration: 0.5)) {
-                                        dotOffset = 50
+                                .frame(width: 100,height: 100)
+                                       // record.visible에 있는 각 아이템 이름을 이용해 이미지 표시
+                            // 아이템이 있는 경우에만 표시
+                                if !snowmanItems.isEmpty {
+                                    ForEach(snowmanItems, id: \.self) { itemName in
+                                        // 디버깅을 위해 아이템 이름 출력
+                                        let _ = print("표시하려는 아이템: \(itemName)")
+                                        
+                                        Image(itemName)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
                                     }
+                                } else {
+                                    // 아이템이 없는 경우에 대한 처리
+                                    Text("아이템 없음")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
                                 }
-                        }
+                                   }
+                        .frame(width: 100,height: 100)
                         
                         Text(snowmanName)
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding(.top, 8)
-                        
-                        Text("완성되었습니다!")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
                         
                         
                         

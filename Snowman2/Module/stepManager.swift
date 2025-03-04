@@ -146,7 +146,6 @@ class StepManager: ObservableObject {
         }
     }
     
-    
     // StepManager에 추가
     func updateNextTargetSteps(to newTarget: Int) {
         
@@ -389,17 +388,20 @@ class StepManager: ObservableObject {
     
     // 눈사람 완성 처리
 
-    func completeSnowman() {
+    func completeSnowman() -> SnowmanRecord {
+        
+        let snowmanRecord = SnowmanRecord()
         // 현재 DailySteps 객체와 필요한 정보를 먼저 가져옴
         guard let currentDailySteps = realm.objects(DailySteps.self).first else {
             print("현재 DailySteps 객체를 찾을 수 없습니다.")
-            return
+            
+            return snowmanRecord
         }
         
         // 목표 달성 확인
         if currentDailySteps.steps < currentDailySteps.targetSteps {
             print("목표 걸음수를 달성해야 새로운 눈사람을 만들 수 있습니다!")
-            return
+            return snowmanRecord
         }
         
         // 필요한 정보 복사
@@ -421,7 +423,6 @@ class StepManager: ObservableObject {
         pedometer.stopUpdates()
         
         // SnowmanRecord 생성 (완성된 눈사람 저장)
-        let snowmanRecord = SnowmanRecord()
         snowmanRecord.name = currentName
         snowmanRecord.steps = currentStepsCount
         snowmanRecord.targetSteps = currentTargetSteps
@@ -452,6 +453,8 @@ class StepManager: ObservableObject {
         // 저장된 nextTarget 값을 직접 전달하여 새 눈사람 시작
         print("다음 눈사람 시작 - 목표 걸음수: \(nextTarget)")
         startNewCountWithTargetSteps(nextTarget)
+        
+        return snowmanRecord
     }
     
     // 특정 목표 걸음수로 새 눈사람 시작하는 메서드 추가
