@@ -125,7 +125,6 @@ struct SnowmanDetailView: View {
                     InfoRow(label: "달성 걸음 수", value: "\(record.steps)")
                     InfoRow(label: "목표 걸음 수", value: "\(record.targetSteps)")
                     InfoRow(label: "달성률", value: "\(Int((Double(record.steps) / Double(record.targetSteps)) * 100))%")
-                    InfoRow(label: "평균 속도", value: String(format: "%.1f km/h", record.averageSpeed))
                 }
                 
                 // 제작 기간 정보
@@ -134,23 +133,10 @@ struct SnowmanDetailView: View {
                     InfoRow(label: "완성일", value: formatDate(record.completionDate))
                     InfoRow(label: "소요 일수", value: "\(record.daysSpent)일")
                 }
-                
-                // 사용된 아이템
-                InfoCard(title: "사용된 아이템") {
-                    if record.usedItems.isEmpty {
-                        Text("사용된 아이템이 없습니다")
-                            .foregroundColor(.secondary)
-                            .padding(.vertical, 5)
-                    } else {
-                        ForEach(Array(record.usedItems), id: \.self) { item in
-                            InfoRow(label: "• ", value: item)
-                        }
-                    }
-                }
             }
             .padding()
         }
-        .navigationTitle("눈사람 상세 정보")
+        .navigationTitle("냉동보관중인 눈사람")
         .navigationBarTitleDisplayMode(.inline)
     }
     

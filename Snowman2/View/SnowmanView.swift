@@ -51,6 +51,36 @@ struct SnowmanView: UIViewRepresentable {
                 print("눈 현재스피드 \(snowRotationSpeed)")
             }
 
+            if let snowNode = scene.rootNode.childNode(withName:"SnowHead", recursively: true) {
+                // 속도에 비례하는 회전 속도 설정
+                let snowRotationSpeed = Float(currentSpeed * -0.0005)
+                
+                // 회전 액션 키
+                let snowRotationActionKey = "snowRotationHeadAction"
+                
+                // currentSpeed가 0이면 회전 멈춤
+                if currentSpeed == 0 {
+                    snowNode.removeAction(forKey: snowRotationActionKey) // 회전 액션 제거
+                    print("눈 회전 멈춤")
+                } else if snowRotationSpeed < 0 {
+                    // 새로운 회전 동작 생성
+                    let rotateAction = SCNAction.rotateBy(x: 0, y: CGFloat(snowRotationSpeed), z: 0, duration: 1)
+                    let repeatAction = SCNAction.repeatForever(rotateAction)
+                    
+                    // 기존 액션이 있으면 부드럽게 전환
+                    if snowNode.action(forKey: snowRotationActionKey) != nil {
+                        SCNTransaction.begin()
+                        SCNTransaction.animationDuration = 0.3
+                        snowNode.removeAction(forKey: snowRotationActionKey)
+                        snowNode.runAction(repeatAction, forKey: snowRotationActionKey)
+                        SCNTransaction.commit()
+                    } else {
+                        snowNode.runAction(repeatAction, forKey: snowRotationActionKey)
+                    }
+                }
+                print("눈 현재스피드 \(snowRotationSpeed)")
+            }
+
             
             if let mapNode = scene.rootNode.childNode(withName:"map", recursively: true) {
                 // 속도에 비례하는 회전 속도 설정
@@ -198,11 +228,23 @@ struct SnowmanView: UIViewRepresentable {
             context.coordinator.internalSpeed = currentSpeed
         }
         
-        if let snowNode = scene.rootNode.childNode(withName:"ball", recursively: true) {
+        if let snowHeadNode = scene.rootNode.childNode(withName:"SnowHead", recursively: true) {
             // 크기 조절 코드는 그대로 유지
-            let scale = 0.5 + (Double(currentSteps) / 1000.0)
+            let scale = 0.2 + (Double(currentSteps) / 600)
             let scaleAction = SCNAction.scale(to: CGFloat(scale), duration: 0.3)
-            snowNode.runAction(scaleAction, forKey: "scaleAction")
+            
+            // 눈사람이 커질수록 머리 위치가 올라가야함
+            snowHeadNode.position = SCNVector3(-12,0.33 + (Double(currentSteps) / 260) ,0)
+            snowHeadNode.runAction(scaleAction, forKey: "scaleAction")
+            print("현재크기 \(scale)")
+        }
+        
+        
+        if let snowBodyNode = scene.rootNode.childNode(withName:"SnowBody", recursively: true) {
+            
+            let scale = 0.3 + (Double(currentSteps) / 400)
+            let scaleAction = SCNAction.scale(to: CGFloat(scale), duration: 0.3)
+            snowBodyNode.runAction(scaleAction, forKey: "scaleAction")
             print("현재크기 \(scale)")
         }
         
