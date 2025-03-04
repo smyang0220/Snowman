@@ -149,6 +149,8 @@ class StepManager: ObservableObject {
     
     // StepManager에 추가
     func updateNextTargetSteps(to newTarget: Int) {
+        
+        print("새로운걸음수\(newTarget)")
         try? realm.write {
             if let currentDailySteps = realm.objects(DailySteps.self).first {
                 currentDailySteps.nextTargetSteps = newTarget

@@ -107,6 +107,9 @@ struct SnowmanDetailView: View {
                                 .frame(height: 300)
                                 .background(Color.white)
                 
+                Text(record.name)
+                                      .font(.largeTitle)
+                                      .fontWeight(.bold)
                 
                 // 걸음 수 정보
                 InfoCard(title: "걸음 수 정보") {
@@ -124,7 +127,7 @@ struct SnowmanDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("\(record.name)")
+        .navigationTitle("냉동보관중")
         .navigationBarTitleDisplayMode(.inline)
     }
     

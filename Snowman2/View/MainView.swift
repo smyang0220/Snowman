@@ -47,8 +47,8 @@ struct MainView: View {
                                 currentSpeed: stepManager.currentSpeed,
                                 currentSteps: stepManager.currentSteps,
                                 visibleItems: stepManager.selectedItems)
-                                .frame(width: geometry.size.width, height: geometry.size.width)
-                                .background(Color.white)
+                            .frame(width: geometry.size.width, height: geometry.size.width)
+                            .background(Color.white)
                             
                             // 걸음수 정보 카드
                             VStack(spacing: 0) {
@@ -130,9 +130,9 @@ struct MainView: View {
                                                 )
                                             )
                                             .frame(width: stepManager.targetSteps > 0
-                                                ? min(CGFloat(stepManager.currentSteps) / CGFloat(stepManager.targetSteps), 1.0) * max(0, geometry.size.width - 64)
-                                                : 0,
-                                                height: 10)
+                                                   ? min(CGFloat(stepManager.currentSteps) / CGFloat(stepManager.targetSteps), 1.0) * max(0, geometry.size.width - 64)
+                                                   : 0,
+                                                   height: 10)
                                             .cornerRadius(5)
                                     }
                                     
@@ -234,7 +234,8 @@ struct MainView: View {
                         
                         stepManager.requestMotionPermission()
                         stepManager.calPace()
-                        stepManager.itemManager.resetAllItemsQuantity()
+                        // 테스트용
+                        //                        stepManager.itemManager.resetAllItemsQuantity()
                     }
                     .alert(isPresented: $showingNewItemAlert) {
                         Alert(
@@ -281,9 +282,16 @@ struct MainView: View {
                                 }
                                 
                                 Button(action: {
+                                    // 디버깅용 로그 추가
+                                    print("선택한 값: \(selectedTargetSteps)")
+                                    
                                     // 선택한 값으로 다음 목표 걸음수 설정
                                     stepManager.updateNextTargetSteps(to: selectedTargetSteps)
-                                    showingTargetPicker = false
+                                    
+                                    // 짧은 지연 후 시트 닫기
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        showingTargetPicker = false
+                                    }
                                 }) {
                                     Text("확인")
                                         .fontWeight(.semibold)
@@ -327,7 +335,7 @@ struct MainView: View {
                             VStack{
                                 if isRunningModeEnabled {
                                     Text("잠금 해제")
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.black)
                                         .font(.system(size: 14, weight: .bold))
                                         .padding(.bottom, 4)
                                     
@@ -609,20 +617,7 @@ struct SnowmanCompletionPopup: View {
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.8))
                         
-                        // 다음 목표 설정 버튼
-                        Button(action: {
-                            showTargetPicker = true
-                            isShowing = false
-                        }) {
-                            Text("다음 목표 걸음수 설정하기")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 24)
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                        }
-                        .padding(.top, 8)
+                        
                         
                         // 닫기 버튼
                         Button(action: {
@@ -668,7 +663,7 @@ extension View {
 struct RoundedCorner: Shape {
     var radius: CGFloat = .infinity
     var corners: UIRectCorner = .allCorners
-
+    
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(
             roundedRect: rect,
