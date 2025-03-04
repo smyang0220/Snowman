@@ -386,6 +386,7 @@ class StepManager: ObservableObject {
     }
     
     // 눈사람 완성 처리
+
     func completeSnowman() {
         // 현재 DailySteps 객체와 필요한 정보를 먼저 가져옴
         guard let currentDailySteps = realm.objects(DailySteps.self).first else {
@@ -407,9 +408,12 @@ class StepManager: ObservableObject {
         let currentDaysSpent = currentDailySteps.daysSpent
         let currentSpeed = currentDailySteps.currentSpeed
         let itemsList = self.selectedItems
+        
+        // 다음 목표 걸음수 설정
+        // nextTargetSteps가 0이면 현재 목표 걸음수를 사용
         let nextTarget = currentDailySteps.nextTargetSteps > 0 ?
-                        currentDailySteps.nextTargetSteps :
-                        DailySteps.generateRandomTarget()
+                         currentDailySteps.nextTargetSteps :
+                         currentDailySteps.targetSteps
         
         // 페도미터 업데이트 중지
         pedometer.stopUpdates()
@@ -444,6 +448,7 @@ class StepManager: ObservableObject {
         }
         
         // 저장된 nextTarget 값을 직접 전달하여 새 눈사람 시작
+        print("다음 눈사람 시작 - 목표 걸음수: \(nextTarget)")
         startNewCountWithTargetSteps(nextTarget)
     }
     

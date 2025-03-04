@@ -13,8 +13,7 @@ struct MainView: View {
     
     // 목표 걸음수
     @State private var showingTargetPicker = false
-    @State private var selectedTargetSteps = 10 // 기본값 설정
-    
+    @State private var selectedTargetSteps = 1000 // 기본값 설정
     
     // 집중 모드 관련 상태
     @State private var isRunningModeEnabled = false
@@ -36,23 +35,28 @@ struct MainView: View {
         NavigationStack {
             GeometryReader { geometry in
                 ZStack {
-                    // 메인 콘텐츠
-                    VStack {
-                        SnowmanView(
-                            currentSpeed: stepManager.currentSpeed,
-                            currentSteps: stepManager.currentSteps,
-                            visibleItems: stepManager.selectedItems)
-                        .frame(width: geometry.size.width, height: geometry.size.width)
-                        
+                    // 배경색 설정
+                    Color(UIColor.white)
+                        .ignoresSafeArea()
                     
-                        // WalkProgress 내용 통합
-                        VStack(spacing: 5) {
+                    // 메인 콘텐츠
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            // 눈사람 뷰
+                            SnowmanView(
+                                currentSpeed: stepManager.currentSpeed,
+                                currentSteps: stepManager.currentSteps,
+                                visibleItems: stepManager.selectedItems)
+                                .frame(width: geometry.size.width, height: geometry.size.width)
+                                .background(Color.white)
+                            
+                            // 걸음수 정보 카드
                             VStack(spacing: 0) {
                                 // 상단 헤더 섹션
                                 HStack {
-                                    Text("걸음수 정보")
+                                    Text("눈사람 운동량")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.black)
                                     Spacer()
                                     
                                     // 완성 버튼
@@ -63,10 +67,12 @@ struct MainView: View {
                                         HStack(spacing: 6) {
                                             Image(systemName: "snow")
                                             Text("완성")
+                                                .fontWeight(.semibold)
                                         }
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 8)
-                                        .background(stepManager.currentSteps >= stepManager.targetSteps ? Color.blue : Color.gray.opacity(0.5))
+                                        .background(stepManager.currentSteps >= stepManager.targetSteps ?
+                                                    Color.blue : Color.gray.opacity(0.5))
                                         .foregroundColor(.white)
                                         .cornerRadius(8)
                                     }
@@ -74,10 +80,11 @@ struct MainView: View {
                                 }
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
-                                .background(Color.blue.opacity(0.8))
+                                .background(Color.white
+                                )
                                 .cornerRadius(16, corners: [.topLeft, .topRight])
                                 
-                                // 정보 섹션
+                                // MARK: 운동 정보 컴포넌트
                                 VStack(spacing: 16) {
                                     // 현재/목표 걸음수
                                     HStack(alignment: .bottom) {
@@ -99,7 +106,7 @@ struct MainView: View {
                                                 .foregroundColor(.gray)
                                             
                                             Text("\(stepManager.targetSteps)")
-                                                .font(.title)
+                                                .font(.title2)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.blue)
                                         }
@@ -122,12 +129,15 @@ struct MainView: View {
                                                     endPoint: .trailing
                                                 )
                                             )
-                                            .frame(width: max(0, min(CGFloat(stepManager.currentSteps) / CGFloat(stepManager.targetSteps), 1.0)) * UIScreen.main.bounds.width * 0.84, height: 10)
+                                            .frame(width: stepManager.targetSteps > 0
+                                                ? min(CGFloat(stepManager.currentSteps) / CGFloat(stepManager.targetSteps), 1.0) * max(0, geometry.size.width - 64)
+                                                : 0,
+                                                height: 10)
                                             .cornerRadius(5)
                                     }
                                     
                                     // 추가 정보 섹션
-                                    HStack {
+                                    HStack(spacing: 12) {
                                         // 현재 속도
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text("현재 속도")
@@ -137,8 +147,9 @@ struct MainView: View {
                                             HStack {
                                                 Image(systemName: "figure.walk")
                                                     .foregroundColor(.blue)
-                                                Text("\(String(format: "%.1f", min(stepManager.currentSpeed, 10.0))) km/h")
+                                                Text("\(String(format: "%.1f", stepManager.currentSpeed / 1000)) km/h")
                                                     .font(.subheadline)
+                                                    .foregroundColor(.black)
                                             }
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -159,9 +170,11 @@ struct MainView: View {
                                                 if let nextTarget = getNextTargetSteps() {
                                                     Text("\(nextTarget) 걸음")
                                                         .font(.subheadline)
+                                                        .foregroundColor(.black)
                                                 } else {
-                                                    Text("랜덤")
+                                                    Text("\(stepManager.targetSteps) 걸음")
                                                         .font(.subheadline)
+                                                        .foregroundColor(.black)
                                                 }
                                             }
                                         }
@@ -175,76 +188,50 @@ struct MainView: View {
                                 .background(Color.white)
                                 .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
                             }
-                            .cornerRadius(16)
                             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                            .padding(.vertical).padding(.horizontal)
                             
-                            // 버튼 섹션
-                            HStack(spacing: 10) {
+                            // 액션 버튼 섹션
+                            HStack(spacing: 12) {
                                 // 옷장 버튼
-                                Button(action: {
-                                    showingWardrobe = true
-                                }) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "bag")
-                                            .font(.system(size: 22))
-                                        Text("옷장")
-                                            .font(.caption)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(12)
-                                }
+                                ActionButton(
+                                    title: "옷장",
+                                    icon: "bag.fill",
+                                    color: Color.brown,
+                                    action: { showingWardrobe = true }
+                                )
                                 
                                 // 다음 목표 걸음수 설정 버튼
-                                Button(action: {
-                                    // 팝업 시트 표시
-                                    showingTargetPicker = true
-                                }) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "figure.walk.motion")
-                                            .font(.system(size: 22))
-                                        Text("목표 설정")
-                                            .font(.caption)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(Color.orange)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(12)
-                                }
+                                ActionButton(
+                                    title: "목표 설정",
+                                    icon: "figure.walk.motion",
+                                    color: Color.orange,
+                                    action: { showingTargetPicker = true }
+                                )
                                 
                                 // 완성된 눈사람 목록 버튼
-                                Button(action: {
-                                    navigateToCompletedSnowmen = true
-                                }) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "refrigerator.fill")
-                                            .font(.system(size: 22))
-                                        Text("냉동실")
-                                            .font(.caption)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(12)
-                                }
+                                ActionButton(
+                                    title: "냉동실",
+                                    icon: "refrigerator.fill",
+                                    color: Color.blue,
+                                    action: { navigateToCompletedSnowmen = true }
+                                )
                             }
-                            .padding(.vertical, 8)
+                            .padding(.horizontal)
+                            
+                            // 숨겨진 네비게이션 링크 (완성된 눈사람 목록으로)
+                            NavigationLink(destination: CompletedSnowmenView(), isActive: $navigateToCompletedSnowmen) {
+                                EmptyView()
+                            }
+                            
+                            Spacer(minLength: 80)
                         }
-                        .padding(.horizontal)
-                        
-                        // 숨겨진 네비게이션 링크 (완성된 눈사람 목록으로)
-                        NavigationLink(destination: CompletedSnowmenView(), isActive: $navigateToCompletedSnowmen) {
-                            EmptyView()
-                        }
-                        
-                        Spacer()
                     }
                     .blur(radius: isRunningModeEnabled ? 1.5 : 0)
                     .onAppear {
+                        // onAppear에서 기본 selectedTargetSteps 값을 현재 목표로 설정
+                        selectedTargetSteps = stepManager.targetSteps
+                        
                         stepManager.requestMotionPermission()
                         stepManager.calPace()
                         stepManager.itemManager.resetAllItemsQuantity()
@@ -266,6 +253,51 @@ struct MainView: View {
                     .sheet(isPresented: $showingWardrobe) {
                         SnowmanWardrobeView(stepManager: stepManager)
                             .presentationDetents([.large, .height(480)])
+                    }
+                    .sheet(isPresented: $showingTargetPicker) {
+                        VStack(spacing: 20) {
+                            Text("다음 눈사람의 목표 걸음수를 선택하세요")
+                                .font(.headline)
+                                .padding(.top)
+                            
+                            Picker("목표 걸음수", selection: $selectedTargetSteps) {
+                                ForEach(stepOptions(), id: \.self) { steps in
+                                    Text("\(steps) 걸음").tag(steps)
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            
+                            HStack(spacing: 20) {
+                                Button(action: {
+                                    showingTargetPicker = false
+                                }) {
+                                    Text("취소")
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(Color.gray.opacity(0.2))
+                                        .foregroundColor(.gray)
+                                        .cornerRadius(10)
+                                }
+                                
+                                Button(action: {
+                                    // 선택한 값으로 다음 목표 걸음수 설정
+                                    stepManager.updateNextTargetSteps(to: selectedTargetSteps)
+                                    showingTargetPicker = false
+                                }) {
+                                    Text("확인")
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        .padding(.bottom, 20)
+                        .presentationDetents([.height(300)])
                     }
                     
                     // 눈사람 완성 팝업 오버레이
@@ -319,7 +351,13 @@ struct MainView: View {
                                 }) {
                                     ZStack {
                                         Circle()
-                                            .fill(Color.blue)
+                                            .fill(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.8)]),
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
                                             .frame(width: 60, height: 60)
                                             .shadow(radius: 3)
                                         
@@ -356,36 +394,6 @@ struct MainView: View {
                         
                         Spacer()
                     }
-                }.background(Color.white).sheet(isPresented: $showingTargetPicker) {
-                    VStack(spacing: 20) {
-                        Text("다음 눈사람의 목표 걸음수를 선택하세요")
-                            .font(.headline)
-                            .padding(.top)
-                        
-                        Picker("목표 걸음수", selection: $selectedTargetSteps) {
-                            ForEach(stepOptions(), id: \.self) { steps in
-                                Text("\(steps) 걸음").tag(steps)
-                            }
-                        }
-                        .pickerStyle(WheelPickerStyle())
-                        
-                        HStack {
-                            Button("취소") {
-                                showingTargetPicker = false
-                            }
-                            .padding()
-                            
-                            Button("확인") {
-                                // 선택한 값으로 다음 목표 걸음수 설정
-                                stepManager.updateNextTargetSteps(to: selectedTargetSteps)
-                                showingTargetPicker = false
-                            }
-                            .padding()
-                            .foregroundColor(.blue)
-                            .fontWeight(.bold)
-                        }
-                    }
-                    .presentationDetents([.height(300)])
                 }
             }
         }
@@ -393,6 +401,10 @@ struct MainView: View {
     
     // 완성 버튼 클릭 시 호출되는 메서드
     func completeSnowmanWithAnimation() {
+        // 현재 눈사람 정보 임시 저장
+        let currentName = stepManager.snowmanName
+        let currentItems = stepManager.selectedItems
+        
         // 팝업 표시
         withAnimation {
             showingCompletionPopup = true
@@ -455,6 +467,40 @@ struct MainView: View {
     }
 }
 
+// 액션 버튼 컴포넌트
+struct ActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.15))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 22))
+                        .foregroundColor(color)
+                }
+                
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(.darkGray))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        }
+    }
+}
+
 // 눈사람 완성 팝업 뷰
 struct SnowmanCompletionPopup: View {
     @Binding var isShowing: Bool
@@ -496,7 +542,13 @@ struct SnowmanCompletionPopup: View {
                             
                             // 프로그레스 바
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.blue)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.blue]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
                                 .frame(width: 240 * CGFloat(animationProgress), height: 16)
                         }
                     }
@@ -557,6 +609,21 @@ struct SnowmanCompletionPopup: View {
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.8))
                         
+                        // 다음 목표 설정 버튼
+                        Button(action: {
+                            showTargetPicker = true
+                            isShowing = false
+                        }) {
+                            Text("다음 목표 걸음수 설정하기")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 24)
+                                .background(Color.blue)
+                                .cornerRadius(12)
+                        }
+                        .padding(.top, 8)
+                        
                         // 닫기 버튼
                         Button(action: {
                             isShowing = false
@@ -577,7 +644,6 @@ struct SnowmanCompletionPopup: View {
         }
     }
 }
-
 
 // MainView 내부에 추가할 함수
 extension MainView {
