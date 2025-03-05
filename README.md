@@ -8,9 +8,9 @@
 사계절 언제나 즐길 수 있는 따뜻한 산책 동반자 앱! <br>
 
 
-> <div style="text-align: center">직접 사용해보세요. (App store)</div>
->
-> <div style="text-align: center"> <img src="Images/img_13.png"> </div>
+ <div style="text-align: center">직접 사용해보세요. (App store)</div>
+
+
 
 ***
 # ☃️ 서비스 소개
@@ -27,12 +27,12 @@
 
 1인 개발자가 직접 만든 앱이라 3D 디자인이 조금 어설플 수 있지만, 눈사람과 함께하는 따뜻한 경험을 전하고 싶어요.<br>   <br>   
 
-눈사람과 함께 걸으며 특별한 추억을 만들어보세요! <br>   
+눈사람과 함께 걸으며 특별한 추억을 만들어보세요! <br><br>
 
 ### 눈사람과 함께 달리는 페이지 (메인화면)☃️
 
 <img src="https://github.com/user-attachments/assets/6a6ee171-ade6-4b72-892b-a5adfe9e79f8" width="300"> <br>
-- 내가 걷는 속도에 맞추어 굴러가는 눈사람을 확인하세요!<br>
+- 내가 걷는 속도에 맞추어 굴러가는 눈사람을 확인하세요!<br>  <br>
 
 ### 귀여운 눈사람 아이템! 🎁
 <div style="display: flex; justify-content: center;">
@@ -40,19 +40,16 @@
 <img src="https://github.com/user-attachments/assets/efe5bb59-567d-4b59-b077-000d4e41cb52" width="300">
   </div>
   <br>
-
+  <br>
 - 달리면서 랜덤하게 획득하는 아이템으로 눈사람을 꾸며보세요 <br>
 
 ### 완성한 눈사람은 냉동실로 🧊
 <img src="https://github.com/user-attachments/assets/893192ec-4037-450b-9b3e-da33d641b71c" width="300"><br>
-- 완성한 눈사람을 냉동실에서 평생토록 보관할 수 있어요..!<br>
+- 완성한 눈사람을 냉동실에서 평생토록 보관할 수 있어요..!<br>  <br>
 
 
 ***
 # 🤖 기술 스택
-***
-
-<img src="Images/tech_stack.png">
 
 ### 1) 모바일 
    **언어**: Swift 5.10 <br>
