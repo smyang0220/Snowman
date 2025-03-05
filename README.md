@@ -35,10 +35,12 @@
 - 내가 걷는 속도에 맞추어 굴러가는 눈사람을 확인하세요!<br>  <br>
 
 ### 귀여운 눈사람 아이템! 🎁
-<div style="display: flex; justify-content: center;">
-<img src="https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef" width="300">
-<img src="https://github.com/user-attachments/assets/efe5bb59-567d-4b59-b077-000d4e41cb52" width="300">
-  </div>
+<table>
+  <tr>
+<td><img src="https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef" width="300"></td>
+<td><img src="https://github.com/user-attachments/assets/efe5bb59-567d-4b59-b077-000d4e41cb52" width="300"></td>
+</tr>
+</table>
   <br>
   <br>
 - 달리면서 랜덤하게 획득하는 아이템으로 눈사람을 꾸며보세요 <br>
