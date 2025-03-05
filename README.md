@@ -56,14 +56,10 @@
 
 ***
 # 🤖 기술 스택
-
-### 1) 모바일 
    **언어**: Swift 5.10 <br>
    **프레임워크**: SwiftUI 5.10 <br>
    **라이브러리**: SceneKit, CoreMotion <br>
+   **데이터베이스**: RealmSwift <br>
    **개발환경**: XCode 16.1 <br>
    **그 외**: Blender, Picksel
-
-### 6) Database 
-   RealmSwift
 
