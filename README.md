@@ -1,7 +1,8 @@
 # ☃️ 프로젝트 소개
 ### 귀여운(?) 눈사람과 함께 걷는
 ## ☃️ iOS 건강 어플리케이션 "스-노우맨" ☃️
-![Image](https://github.com/user-attachments/assets/b50097b7-d856-4e0c-a5e1-681285ef5979)
+<img src="https://github.com/user-attachments/assets/b50097b7-d856-4e0c-a5e1-681285ef5979" width="300" height="300">
+
 "**눈사람과 함께 걷는 특별한 경험!**" <br> <br>
 빠르게 뛰면 눈사람도 빠르게, 천천히 걸으면 함께 천천히.<br>   
 사계절 언제나 즐길 수 있는 따뜻한 산책 동반자 앱! <br>
@@ -30,17 +31,17 @@
 
 ### 눈사람과 함께 달리는 페이지 (메인화면)☃️
 
-![Image](https://github.com/user-attachments/assets/6a6ee171-ade6-4b72-892b-a5adfe9e79f8)
+<img src="https://github.com/user-attachments/assets/6a6ee171-ade6-4b72-892b-a5adfe9e79f8" width="300">
 - 내가 걷는 속도에 맞추어 굴러가는 눈사람을 확인하세요!
 
 ### 귀여운 눈사람 아이템! 🎁
-![Image](https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef)
-![Image](https://github.com/user-attachments/assets/efe5bb59-567d-4b59-b077-000d4e41cb52)
+<img src="https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef" width="300">
+<img src="https://github.com/user-attachments/assets/efe5bb59-567d-4b59-b077-000d4e41cb52" width="300">
 
 - 달리면서 랜덤하게 획득하는 아이템으로 눈사람을 꾸며보세요 
 
 ### 완성한 눈사람은 냉동실로 🧊
-![Image](https://github.com/user-attachments/assets/893192ec-4037-450b-9b3e-da33d641b71c) 
+<img src="https://github.com/user-attachments/assets/893192ec-4037-450b-9b3e-da33d641b71c" width="300">
 - 완성한 눈사람을 냉동실에서 평생토록 보관할 수 있어요..!
 
 
