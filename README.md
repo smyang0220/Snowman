@@ -1,5 +1,6 @@
 # ☃️ 프로젝트 소개
-***
+***![Image](https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef)
+
 ### 귀여운(?) 눈사람과 함께 걷는
 ## ☃️ iOS 건강 어플리케이션 "스-노우맨" ☃️
 
