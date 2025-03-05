@@ -1,14 +1,17 @@
 # ☃️ 프로젝트 소개
 ### 귀여운(?) 눈사람과 함께 걷는
 ### ☃️ iOS 건강 어플리케이션 "스-노우맨" ☃️
-<img src="https://github.com/user-attachments/assets/b50097b7-d856-4e0c-a5e1-681285ef5979" width="300" height="300">
+
+<table>
+  <tr>
+<td><img src="https://github.com/user-attachments/assets/94e6bec5-6855-4b89-b6f2-fed429686d26"width="300" height="300"></td>
+<td><img src="https://github.com/user-attachments/assets/b50097b7-d856-4e0c-a5e1-681285ef5979" width="300" height="300"></td>
+</tr>
+</table>
 
 "**눈사람과 함께 걷는 특별한 경험!**" <br> <br>
 빠르게 뛰면 눈사람도 빠르게, 천천히 걸으면 함께 천천히.<br>   
 사계절 언제나 즐길 수 있는 따뜻한 산책 동반자 앱! <br>
-
-
- <div style="text-align: center">직접 사용해보세요. (App store)</div>
 
 
 
