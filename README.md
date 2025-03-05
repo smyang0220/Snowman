@@ -1,6 +1,12 @@
 # ☃️ 프로젝트 소개
-***![Image](https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef)
+![Image](https://github.com/user-attachments/assets/6a6ee171-ade6-4b72-892b-a5adfe9e79f8)
+![Image](https://github.com/user-attachments/assets/efe5bb59-567d-4b59-b077-000d4e41cb52)
 
+![Image](https://github.com/user-attachments/assets/b50097b7-d856-4e0c-a5e1-681285ef5979)
+
+![Image](https://github.com/user-attachments/assets/b8774ffc-4612-4773-a0f8-e600b68625ef)
+
+![Image](https://github.com/user-attachments/assets/893192ec-4037-450b-9b3e-da33d641b71c)
 ### 귀여운(?) 눈사람과 함께 걷는
 ## ☃️ iOS 건강 어플리케이션 "스-노우맨" ☃️
 
