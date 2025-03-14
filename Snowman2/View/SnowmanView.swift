@@ -20,98 +20,78 @@ struct SnowmanView: UIViewRepresentable {
         
         func updateRotation(in scene: SCNScene) {
             print("updateRotation(in:) 호출됨 \(currentSpeed)") // 디버깅 메시지
-          
-            if let snowNode = scene.rootNode.childNode(withName:"SnowBody", recursively: true) {
-                // 속도에 비례하는 회전 속도 설정
-                let snowRotationSpeed = Float(currentSpeed * -0.0005)
-                
-                // 회전 액션 키
-                let snowRotationActionKey = "snowRotationAction"
-                
-                // currentSpeed가 0이면 회전 멈춤
-                if currentSpeed == 0 {
-                    snowNode.removeAction(forKey: snowRotationActionKey) // 회전 액션 제거
-                    print("눈 회전 멈춤")
-                } else if snowRotationSpeed < 0 {
-                    // 새로운 회전 동작 생성
-                    let rotateAction = SCNAction.rotateBy(x: CGFloat(snowRotationSpeed), y: 0, z: 0, duration: 1)
-                    let repeatAction = SCNAction.repeatForever(rotateAction)
-                    
-                    // 기존 액션이 있으면 부드럽게 전환
-                    if snowNode.action(forKey: snowRotationActionKey) != nil {
-                        SCNTransaction.begin()
-                        SCNTransaction.animationDuration = 0.3
-                        snowNode.removeAction(forKey: snowRotationActionKey)
-                        snowNode.runAction(repeatAction, forKey: snowRotationActionKey)
-                        SCNTransaction.commit()
-                    } else {
-                        snowNode.runAction(repeatAction, forKey: snowRotationActionKey)
-                    }
-                }
-                print("눈 현재스피드 \(snowRotationSpeed)")
-            }
-
-            if let snowNode = scene.rootNode.childNode(withName:"SnowHead", recursively: true) {
-                // 속도에 비례하는 회전 속도 설정
-                let snowRotationSpeed = Float(currentSpeed * -0.0005)
-                
-                // 회전 액션 키
-                let snowRotationActionKey = "snowRotationHeadAction"
-                
-                // currentSpeed가 0이면 회전 멈춤
-                if currentSpeed == 0 {
-                    snowNode.removeAction(forKey: snowRotationActionKey) // 회전 액션 제거
-                    print("눈 회전 멈춤")
-                } else if snowRotationSpeed < 0 {
-                    // 새로운 회전 동작 생성
-                    let rotateAction = SCNAction.rotateBy(x: 0, y: CGFloat(snowRotationSpeed), z: 0, duration: 1)
-                    let repeatAction = SCNAction.repeatForever(rotateAction)
-                    
-                    // 기존 액션이 있으면 부드럽게 전환
-                    if snowNode.action(forKey: snowRotationActionKey) != nil {
-                        SCNTransaction.begin()
-                        SCNTransaction.animationDuration = 0.3
-                        snowNode.removeAction(forKey: snowRotationActionKey)
-                        snowNode.runAction(repeatAction, forKey: snowRotationActionKey)
-                        SCNTransaction.commit()
-                    } else {
-                        snowNode.runAction(repeatAction, forKey: snowRotationActionKey)
-                    }
-                }
-                print("눈 현재스피드 \(snowRotationSpeed)")
-            }
-
             
-            if let mapNode = scene.rootNode.childNode(withName:"map", recursively: true) {
-                // 속도에 비례하는 회전 속도 설정
-                let mapRotationSpeed = Float(currentSpeed * 0.0001)
-                
-                // 회전 액션 키
-                let mapRotationActionKey = "mapRotationAction"
-                
+            // 회전 액션 적용을 위한 공통 함수
+            func applyRotation(to node: SCNNode, speedFactor: Float, xAxis: CGFloat = 0, yAxis: CGFloat = 0, zAxis: CGFloat = 0, actionKey: String) {
                 // currentSpeed가 0이면 회전 멈춤
                 if currentSpeed == 0 {
-                    mapNode.removeAction(forKey: mapRotationActionKey) // 회전 액션 제거
-                    print("맵 회전 멈춤")
-                } else if mapRotationSpeed > 0 {
+                    node.removeAction(forKey: actionKey) // 회전 액션 제거
+                    print("\(node.name ?? "노드") 회전 멈춤")
+                    return
+                }
+                
+                let speed = Float(currentSpeed) * speedFactor
+                
+                // 속도가 의미 있는 방향인지 확인 (SnowBody와 SnowHead는 음수, map은 양수일 때만 회전)
+                let isValidDirection = (speedFactor < 0 && speed < 0) || (speedFactor > 0 && speed > 0)
+                
+                if isValidDirection {
                     // 새로운 회전 동작 생성
-                    let rotateAction = SCNAction.rotateBy(x: 0, y: CGFloat(mapRotationSpeed), z: 0, duration: 1)
+                    let rotateAction = SCNAction.rotateBy(
+                        x: xAxis * CGFloat(speed),
+                        y: yAxis * CGFloat(speed),
+                        z: zAxis * CGFloat(speed),
+                        duration: 1
+                    )
                     let repeatAction = SCNAction.repeatForever(rotateAction)
                     
                     // 기존 액션이 있으면 부드럽게 전환
-                    if mapNode.action(forKey: mapRotationActionKey) != nil {
+                    if node.action(forKey: actionKey) != nil {
                         SCNTransaction.begin()
                         SCNTransaction.animationDuration = 0.3
-                        mapNode.removeAction(forKey: mapRotationActionKey)
-                        mapNode.runAction(repeatAction, forKey: mapRotationActionKey)
+                        node.removeAction(forKey: actionKey)
+                        node.runAction(repeatAction, forKey: actionKey)
                         SCNTransaction.commit()
                     } else {
-                        mapNode.runAction(repeatAction, forKey: mapRotationActionKey)
+                        node.runAction(repeatAction, forKey: actionKey)
                     }
+                    
+                    print("\(node.name ?? "노드") 현재스피드 \(speed)")
+                } else {
+                    // 속도가 유효하지 않은 방향이면 회전 멈춤
+                    node.removeAction(forKey: actionKey)
                 }
-                print("맵 현재스피드 \(mapRotationSpeed)")
             }
             
+            // SnowBody 회전 (x축)
+            if let snowBodyNode = scene.rootNode.childNode(withName: "SnowBody", recursively: true) {
+                applyRotation(
+                    to: snowBodyNode,
+                    speedFactor: -0.0005, // 음수로 설정
+                    xAxis: 1,             // x축 회전
+                    actionKey: "snowRotationAction"
+                )
+            }
+            
+            // SnowHead 회전 (y축)
+            if let snowHeadNode = scene.rootNode.childNode(withName: "SnowHead", recursively: true) {
+                applyRotation(
+                    to: snowHeadNode,
+                    speedFactor: -0.0005, // 음수로 설정
+                    yAxis: 1,             // y축 회전
+                    actionKey: "snowRotationHeadAction"
+                )
+            }
+            
+            // Map 회전 (y축)
+            if let mapNode = scene.rootNode.childNode(withName: "map", recursively: true) {
+                applyRotation(
+                    to: mapNode,
+                    speedFactor: 0.0001,  // 양수로 설정
+                    yAxis: 1,             // y축 회전
+                    actionKey: "mapRotationAction"
+                )
+            }
         }
         
         deinit {
@@ -130,10 +110,8 @@ struct SnowmanView: UIViewRepresentable {
         let scene = loadScene()
         scnView.scene = scene
         scnView.backgroundColor = .clear
-//        scnView.allowsCameraControl = false
+        scnView.allowsCameraControl = false
         scnView.autoenablesDefaultLighting = false // 기본 조명 자동 활성화 비활성화
-//        scnView.defaultCameraController.interactionMode = .orbitTurntable
-        
         
         
         // Coordinator에 뷰 참조 저장
@@ -164,7 +142,7 @@ struct SnowmanView: UIViewRepresentable {
         hideAllNodes(node: scene.rootNode)
             
         // 2. camera와 light는 항상 표시
-        showNodesWithNames(["camera", "omniLight", "areaLight", "areaLight2", "snow", "map"], rootNode: scene.rootNode)
+        showNodesWithNames(["camera", "omniLight", "areaLight", "areaLight2", "areaLight3","snow", "map","keyLight","fillLight","backLight","ambientLight","mapLight"], rootNode: scene.rootNode)
             
         // 3. snow 노드 표시
         
@@ -227,28 +205,40 @@ struct SnowmanView: UIViewRepresentable {
         if context.coordinator.internalSpeed != currentSpeed {
             context.coordinator.internalSpeed = currentSpeed
         }
-        
-        if let snowHeadNode = scene.rootNode.childNode(withName:"SnowHead", recursively: true) {
-            // 크기 조절 코드는 그대로 유지
-            let scale = 0.2 + (Double(currentSteps) / 600)
-            let scaleAction = SCNAction.scale(to: CGFloat(scale), duration: 0.3)
-            
-            // 눈사람이 커질수록 머리 위치가 올라가야함
-            snowHeadNode.position = SCNVector3(-12,0.33 + (Double(currentSteps) / 260) ,0)
-            snowHeadNode.runAction(scaleAction, forKey: "scaleAction")
-            print("현재크기 \(scale)")
+
+        // 눈사람 머리
+        if let snowHeadNode = scene.rootNode.childNode(withName: "SnowHead", recursively: true) {
+            updateScaleAndPosition(
+                for: snowHeadNode,
+                initialScale: 0.2,
+                scaleRatio: 3600,  // 크면 클수록 작아짐
+                initialY: -0.13,
+                positionYRatio: 1200,  // y축 좌표
+                actionKey: "scaleAction",
+                currentSteps: currentSteps
+            )
+        }
+
+        // 눈사람 몸체
+        if let snowBodyNode = scene.rootNode.childNode(withName: "SnowBody", recursively: true) {
+            updateScaleAndPosition(
+                for: snowBodyNode,
+                initialScale: 0.3,
+                scaleRatio: 2400,  // scale
+                initialY: -0.6,
+                positionYRatio: 2800,  // y축 좌표
+                actionKey: "scaleAction",
+                currentSteps: currentSteps
+            )
+        }
+
+        // 카메라 위치 업데이트
+        if let cameraNode = scene.rootNode.childNode(withName: "camera", recursively: true) {
+            updateCameraPosition(for: cameraNode, currentSteps: currentSteps)
         }
         
-        
-        if let snowBodyNode = scene.rootNode.childNode(withName:"SnowBody", recursively: true) {
-            
-            let scale = 0.3 + (Double(currentSteps) / 400)
-            let scaleAction = SCNAction.scale(to: CGFloat(scale), duration: 0.3)
-            snowBodyNode.runAction(scaleAction, forKey: "scaleAction")
-            print("현재크기 \(scale)")
-        }
-        
-        printNodeDetails(node: scene.rootNode)
+        // 전체 노드 확인
+//        printNodeDetails(node: scene.rootNode)
         
     }
     
@@ -270,19 +260,37 @@ struct SnowmanView: UIViewRepresentable {
         // 쉐이딩 설정
         updateMaterialsToPhysicallyBased(for: scene)
         
-        // 면광원 조명 추가
-        let areaLightNode = makeAreaLight(intensity: 9000, name: "areaLight", position: SCNVector3(-8, 8, 30), areaExtents: simd_float3(x: 15, y: 15, z: 1))
-        scene.rootNode.addChildNode(areaLightNode)
-           
-        let areaLightNode2 = makeAreaLight(intensity: 6000, name: "areaLight2", position: SCNVector3(8, -8, 10), areaExtents: simd_float3(x: 7, y: 7, z: 1.0))
-        scene.rootNode.addChildNode(areaLightNode2)
+       
         
-        let makeOmniLightNode = makeOmniLight()
-        scene.rootNode.addChildNode(makeOmniLightNode)
-        
-        let makeBackOmniLightNode = makeBackOmniLight()
-        scene.rootNode.addChildNode(makeBackOmniLightNode)
-        
+        // 주요 조명(key light) - 주 광원, 눈사람의 정면에서 약간 위쪽 방향
+        let keyLight = makeAreaLight(
+            intensity: 600,
+            name: "keyLight",
+            position: SCNVector3(-20, 10, 15),
+            areaExtents: simd_float3(x: 150, y: 150, z: 1),
+            color: UIColor(white: 1.0, alpha: 1.0)
+        )
+        scene.rootNode.addChildNode(keyLight)
+
+        // 보조 조명(fill light) - 그림자를 부드럽게 만들어주는 덜 강한 조명
+        let fillLight = makeAreaLight(
+            intensity: 300,
+            name: "fillLight",
+            position: SCNVector3(10, 5, 10),
+            areaExtents: simd_float3(x: 100, y: 100, z: 1),
+            color: UIColor(red: 0.9, green: 0.9, blue: 1.0, alpha: 1.0) // 약간 푸른 계열
+        )
+        scene.rootNode.addChildNode(fillLight)
+
+        // 환경 조명 - 전체적인 분위기를 만드는 약한 조명
+        let ambientLight = SCNNode()
+        ambientLight.light = SCNLight()
+        ambientLight.light?.type = .ambient
+        ambientLight.light?.intensity = 200
+        ambientLight.light?.color = UIColor(red: 0.8, green: 0.9, blue: 1.0, alpha: 1.0) // 차가운 환경광
+        ambientLight.name = "ambientLight"
+        scene.rootNode.addChildNode(ambientLight)
+
         return scene
     }
     

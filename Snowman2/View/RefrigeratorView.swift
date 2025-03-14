@@ -137,11 +137,11 @@ struct RefrigeratorView: UIViewRepresentable {
         updateMaterialsToPhysicallyBased(for: scene)
         
         // 면광원 조명 추가 (기존과 동일)
-        let areaLightNode = makeAreaLight(intensity: 9000, name: "areaLight", position: SCNVector3(-8, 8, 30), areaExtents: simd_float3(x: 15, y: 15, z: 1))
-        scene.rootNode.addChildNode(areaLightNode)
-           
-        let areaLightNode2 = makeAreaLight(intensity: 6000, name: "areaLight2", position: SCNVector3(8, -8, 10), areaExtents: simd_float3(x: 7, y: 7, z: 1.0))
-        scene.rootNode.addChildNode(areaLightNode2)
+//        let areaLightNode = makeAreaLight(intensity: 9000, name: "areaLight", position: SCNVector3(-8, 8, 30), areaExtents: simd_float3(x: 15, y: 15, z: 1))
+//        scene.rootNode.addChildNode(areaLightNode)
+//           
+//        let areaLightNode2 = makeAreaLight(intensity: 6000, name: "areaLight2", position: SCNVector3(8, -8, 10), areaExtents: simd_float3(x: 7, y: 7, z: 1.0))
+//        scene.rootNode.addChildNode(areaLightNode2)
         
         let makeOmniLightNode = makeOmniLight()
         scene.rootNode.addChildNode(makeOmniLightNode)

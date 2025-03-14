@@ -12,7 +12,10 @@ func makeCamera() -> SCNNode {
     let cameraNode = SCNNode()
     cameraNode.camera = SCNCamera()
     cameraNode.position = SCNVector3(x: -12, y: 1, z: 6)
-    cameraNode.camera?.automaticallyAdjustsZRange = false
+//    cameraNode.camera?.fieldOfView = 90
+    let angle = Float(-18 * Float.pi / 180)
+    cameraNode.eulerAngles.x = angle
+    cameraNode.camera?.automaticallyAdjustsZRange = true
     cameraNode.name = "camera"
     return cameraNode
 }
@@ -29,26 +32,77 @@ func makeCamera2() -> SCNNode {
 
 // 쉐이딩 파트
 func updateMaterialsToPhysicallyBased(for scene: SCNScene) {
-    scene.rootNode.enumerateChildNodes { (node, _) in
-        for material in node.geometry?.materials ?? [] {
-            material.lightingModel = .physicallyBased
-            material.roughness.contents = 0.8 // 거칠기 값을 높여 매트하게 만듭니다.
+    // 재귀적으로 모든 노드를 방문하는 함수
+    func updateMaterials(node: SCNNode) {
+        // 현재 노드의 재질 업데이트
+        if let geometry = node.geometry {
+            for (index, material) in geometry.materials.enumerated() {
+                // 기존 라이팅 모델 저장
+                let oldLightingModel = material.lightingModel
+                let materialName = material.name ?? "이름 없음"
+                
+                // 새로운 재질 생성
+                let newMaterial = SCNMaterial()
+                newMaterial.name = materialName
+                newMaterial.lightingModel = .physicallyBased
+                
+                // 기존 재질의 속성 복사
+                if let diffuseContents = material.diffuse.contents {
+                    newMaterial.diffuse.contents = diffuseContents
+                } else {
+                    newMaterial.diffuse.contents = UIColor.white
+                }
+                
+                // PBR 속성 설정
+                newMaterial.roughness.contents = NSNumber(value: 1.0)
+                
+                // 새 재질 적용
+                geometry.replaceMaterial(at: index, with: newMaterial)
+                
+                print("재질 업데이트: \(materialName)")
+                print("  변경 전: \(oldLightingModel)")
+                print("  변경 후: \(newMaterial.lightingModel)")
+                print("  roughness: \(newMaterial.roughness.contents ?? "nil")")
+                print("  metalness: \(newMaterial.metalness.contents ?? "nil")")
+                print("  diffuse: \(newMaterial.diffuse.contents ?? "nil")")
+            }
+        }
+        
+        // 모든 자식 노드에 대해 재귀적으로 호출
+        for childNode in node.childNodes {
+            updateMaterials(node: childNode)
         }
     }
+    
+    // 루트 노드부터 시작하여 모든 노드 처리
+    updateMaterials(node: scene.rootNode)
+    print("모든 재질을 피지컬 베이스드로 업데이트 완료")
 }
 
 // 면광원 조명 추가
-func makeAreaLight(intensity: CGFloat, name: String, position: SCNVector3, areaExtents: simd_float3) -> SCNNode {
+func makeAreaLight(intensity: CGFloat, name: String, position: SCNVector3, areaExtents: simd_float3, color: UIColor) -> SCNNode {
     let areaLightNode = SCNNode()
     let areaLight = SCNLight()
     areaLight.type = .area
     areaLight.intensity = intensity
     areaLight.areaType = .rectangle
     areaLight.areaExtents = areaExtents
+    areaLight.color = color
+    
+    // 그림자 설정
+    areaLight.castsShadow = true
+    areaLight.shadowRadius = 2.0  // 부드러운 그림자 경계
+    areaLight.shadowColor = UIColor.black.withAlphaComponent(0.6)  // 반투명 그림자
+    areaLight.shadowMode = .deferred
+    areaLight.shadowSampleCount = 8  // 성능과 품질의 균형
+    
     areaLightNode.light = areaLight
     areaLightNode.position = position
-    areaLightNode.look(at: SCNVector3.init(x: 0.5, y: 0.6, z: 0.2))
+    
+    // 눈사람 중심을 바라보게 설정
+    areaLightNode.look(at: SCNVector3(x: -12, y: 0, z: 0))
     areaLightNode.name = name
+    
     return areaLightNode
 }
 
@@ -164,3 +218,59 @@ func printNodeDetails(node: SCNNode, depth: Int = 0) {
     }
 }
 
+
+// 스케일 및 위치 조정을 위한 공통 함수
+func updateScaleAndPosition(
+    for node: SCNNode,
+    initialScale: Double,
+    scaleRatio: Double,
+    initialY: Double,
+    positionYRatio: Double,
+    actionKey: String,
+    currentSteps : Int
+) {
+    let scale = initialScale + (Double(currentSteps) / scaleRatio)
+    let scaleAction = SCNAction.scale(to: CGFloat(scale), duration: 0.3)
+    
+    
+    let newX = -6
+    - (Double(currentSteps) / 5000)
+    let newY = initialY
+    + (Double(currentSteps) / positionYRatio)
+    
+    // 기존 x, z 값 유지
+    let newPosition = SCNVector3(Float(newX), Float(newY), node.position.z)
+    
+    // 위치와 스케일 동시 애니메이션
+    SCNTransaction.begin()
+    SCNTransaction.animationDuration = 0.3
+    node.position = newPosition
+    SCNTransaction.commit()
+    
+    node.runAction(scaleAction, forKey: actionKey)
+    print("\(node.name ?? "노드") 현재크기: \(scale), 위치Y: \(newY)")
+}
+
+// 카메라 위치 업데이트 함수
+func updateCameraPosition(for camera: SCNNode, currentSteps: Int) {
+    let baseY = 1.0
+    let baseZ = 6.0
+    
+    // 스텝에 따른 증분 계산
+    let additionalY = (Double(currentSteps) / 1000) 
+    let additionalZ = (Double(currentSteps) / 1000)
+    let newX = -6
+    - (Double(currentSteps) / 5000)
+    // 새 위치 계산
+    let newPosition = SCNVector3(
+        Float(newX),
+        Float(baseY + additionalY),
+        Float(baseZ + additionalZ)
+    )
+    
+    // 애니메이션으로 위치 이동
+    let moveAction = SCNAction.move(to: newPosition, duration: 0.3)
+    camera.runAction(moveAction, forKey: "cameraPositionAction")
+    
+    print("카메라 위치: Y=\(newPosition.y), Z=\(newPosition.z)")
+}
