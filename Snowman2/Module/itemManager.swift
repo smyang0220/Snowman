@@ -163,30 +163,26 @@ class ItemManager: ObservableObject {
         }
     }
     
-    // 걸음 수에 따른 아이템 획득 확인
-    func checkItemDrop(currentSteps: Int) {
-            // 새로 증가한 걸음 수만큼 아이템 드롭 확률 계산
-            let stepsDifference = currentSteps - lastStepCount
-            
-            if stepsDifference > 0 {
-                // 현재 걸음 수가 이전 걸음 수보다 큰 경우에만 아이템 획득 로직 실행
-                for _ in 0..<stepsDifference {
-                    if Double.random(in: 0...1) <= ItemConstants.itemDropRate {
-                        if let randomItemName = ItemConstants.getRandomItem() {
-                            addItem(named: randomItemName)
-                            
-                            // UI 업데이트를 위한 발행
-                            newItemName = getItemDisplayName(randomItemName)
-                            newItemAlert = true
-                        }
-                    }
-                }
+    // 눈사람 완성 시 걸음 수에 비례해서 랜덤 아이템 지급
+    func rewardItemsForCompletedSnowman(steps: Int) -> [(name: String, displayName: String)] {
+        // 걸음 수에 비례해서 아이템 개수 결정 (예: 5000걸음 당 2개 정도)
+        let itemCount = max(1, Int(Double(steps) / 2500.0))
+        
+        var rewardedItems: [(name: String, displayName: String)] = []
+        
+        for _ in 0..<itemCount {
+            if let randomItemName = ItemConstants.getRandomItem() {
+                // 아이템 추가
+                addItem(named: randomItemName)
                 
-                // 마지막 걸음 수 업데이트 및 저장
-                lastStepCount = currentSteps
-                UserDefaults.standard.set(lastStepCount, forKey: lastStepCountKey)
+                // 결과 리스트에 아이템 이름과 표시 이름 추가
+                rewardedItems.append((name: randomItemName, displayName: getItemDisplayName(randomItemName)))
             }
         }
+        
+        return rewardedItems
+    }
+    
     
     // 아이템 이름으로 표시 이름 가져오기
     func getItemDisplayName(_ name: String) -> String {
@@ -258,25 +254,26 @@ class ItemManager: ObservableObject {
            return []
        }
        
-       // 눈사람 완성 (선택된 아이템 사용)
+    // 눈사람 완성 함수 수정
     func completeSnowman(from dailySteps: DailySteps, selectedItems: [String]) {
-            // 아이템 사용 (수량 감소)
-            for itemName in selectedItems {
-                useItem(named: itemName)
-            }
-            
-            // 완성된 눈사람 저장
-            let snowmanRecord = SnowmanRecord(from: dailySteps, usedItems: selectedItems)
-            try? realm.write {
-                realm.add(snowmanRecord)
-                
-                // 현재 DailySteps 초기화 (새 눈사람 시작)
-                resetCurrentDailySteps()
-            }
+        // 아이템 사용 (수량 감소)
+        for itemName in selectedItems {
+            useItem(named: itemName)
         }
-    
+        
+        // 완성된 눈사람 저장
+        let snowmanRecord = SnowmanRecord(from: dailySteps, usedItems: selectedItems)
+        try? realm.write {
+            realm.add(snowmanRecord)
+        }
+        
+        
+        // 현재 DailySteps 초기화 (새 눈사람 시작)
+        resetCurrentDailySteps()
+        
+    }
     // 현재 DailySteps 초기화 및 새로 생성
-        private func resetCurrentDailySteps() {
+    private func resetCurrentDailySteps() {
             try? realm.write {
                 // 현재 DailySteps 삭제 (선택사항)
                 if let currentSteps = realm.objects(DailySteps.self).first {

@@ -3,11 +3,13 @@ import RealmSwift
 
 struct MainView: View {
     @StateObject private var stepManager = StepManager()
+    @StateObject private var itemManager = ItemManager()
     @State private var showingNewItemAlert = false
     @State private var newItemName = ""
     @State private var navigateToCompletedSnowmen = false
     @State private var showingWardrobe = false
-    
+    @State private var rewardedItems: [(name: String, displayName: String)] = []
+
     // 눈사람 완성 팝업 관련 상태
     @State private var showingCompletionPopup = false
     
@@ -239,20 +241,6 @@ struct MainView: View {
                         // 테스트용
                         //                        stepManager.itemManager.resetAllItemsQuantity()
                     }
-                    .alert(isPresented: $showingNewItemAlert) {
-                        Alert(
-                            title: Text("새 아이템 획득!"),
-                            message: Text("\(newItemName)을(를) 획득했습니다!"),
-                            dismissButton: .default(Text("확인"))
-                        )
-                    }
-                    .onReceive(stepManager.itemManager.$newItemAlert) { show in
-                        if show {
-                            showingNewItemAlert = true
-                            newItemName = stepManager.itemManager.newItemName
-                            stepManager.itemManager.newItemAlert = false
-                        }
-                    }
                     .sheet(isPresented: $showingWardrobe) {
                         SnowmanWardrobeView(stepManager: stepManager)
                             .presentationDetents([.large, .height(480)])
@@ -316,7 +304,7 @@ struct MainView: View {
                             isShowing: $showingCompletionPopup,
                             showTargetPicker: $showingTargetPicker,
                             snowmanName: stepManager.snowmanName,
-                            snowmanItems: completedSnowmanRecord?.usedItems.map { $0 } ?? []
+                            snowmanItems: completedSnowmanRecord?.usedItems.map { $0 } ?? [], rewardedItems: rewardedItems
                         )
                         .transition(.opacity)
                         .zIndex(100) // 운동 모드 오버레이보다 위에 표시
@@ -411,6 +399,7 @@ struct MainView: View {
     
     // 완성 버튼 클릭 시 호출되는 메서드
     func completeSnowmanWithAnimation() {
+      
         // 팝업 표시
         withAnimation {
             showingCompletionPopup = true
@@ -420,9 +409,11 @@ struct MainView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             // 눈사람 레코드 생성 및 완성 처리
             let snowmanRecord = stepManager.completeSnowman()
+            let getItem = itemManager.rewardItemsForCompletedSnowman(steps: stepManager.currentSteps)
             
             // 레코드가 생성된 후 팝업 데이터 업데이트
             DispatchQueue.main.async {
+                self.rewardedItems = getItem
                 self.completedSnowmanRecord = snowmanRecord
             }
         }
@@ -513,7 +504,7 @@ struct ActionButton: View {
     }
 }
 
-// 눈사람 완성 팝업 뷰
+// MARK: 눈사람 완성 팝업 뷰
 struct SnowmanCompletionPopup: View {
     @Binding var isShowing: Bool
     @Binding var showTargetPicker: Bool
@@ -523,6 +514,7 @@ struct SnowmanCompletionPopup: View {
     
     let snowmanName: String
     let snowmanItems: [String]
+    let rewardedItems: [(name: String, displayName: String)] // 추가: 보상으로 얻은 아이템 목록
     let timer = Timer.publish(every: 0.02, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -540,7 +532,7 @@ struct SnowmanCompletionPopup: View {
             
             VStack(spacing: 20) {
                 if !showCompletionView {
-                    // 로딩 뷰
+                    // 로딩 뷰 (기존 코드 유지)
                     VStack(spacing: 24) {
                         Text("눈사람 만드는중...")
                             .font(.headline)
@@ -579,55 +571,88 @@ struct SnowmanCompletionPopup: View {
                     }
                 } else {
                     // 완성된 눈사람 뷰
-                    VStack(spacing: 24) {
-                        Text("눈사람 완성!")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        // 눈사람 이미지와 아이템 (ZStack으로 겹쳐서 표시)
-                        ZStack {
-                            Image("snow")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 100,height: 100)
-                                       // record.visible에 있는 각 아이템 이름을 이용해 이미지 표시
-                            // 아이템이 있는 경우에만 표시
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            Text("눈사람 완성!")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            
+                            // 눈사람 이미지와 아이템 (ZStack으로 겹쳐서 표시)
+                            ZStack {
+                                Image("snow")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                
+                                // 아이템이 있는 경우에만 표시
                                 if !snowmanItems.isEmpty {
                                     ForEach(snowmanItems, id: \.self) { itemName in
-                                        // 디버깅을 위해 아이템 이름 출력
-                                        let _ = print("표시하려는 아이템: \(itemName)")
-                                        
                                         Image(itemName)
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 100, height: 100)
                                     }
                                 }
-                                   }
-                        .frame(width: 100,height: 100)
-                        
-                        Text(snowmanName)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.top, 8)
-                        
-                        
-                        
-                        // 닫기 버튼
-                        Button(action: {
-                            isShowing = false
-                        }) {
-                            Text("닫기")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
+                            }
+                            .frame(width: 100, height: 100)
+                            
+                            Text(snowmanName)
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.top, 8)
+                            
+                            // 보상 아이템 섹션 추가
+                            if !rewardedItems.isEmpty {
+                                Divider()
+                                    .background(Color.white.opacity(0.3))
+                                    .padding(.vertical, 8)
+                                
+                                Text("획득한 아이템")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .padding(.bottom, 8)
+                                
+                                // 보상 아이템 그리드로 표시
+                                LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))], spacing: 16) {
+                                    ForEach(rewardedItems, id: \.name) { item in
+                                        VStack {
+                                            Image(item.name)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 50, height: 50)
+                                                .background(Color.white.opacity(0.1))
+                                                .cornerRadius(8)
+                                            
+                                            Text(item.displayName)
+                                                .font(.caption)
+                                                .foregroundColor(.white)
+                                                .multilineTextAlignment(.center)
+                                                .lineLimit(2)
+                                                .frame(width: 70)
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                            
+                            // 닫기 버튼
+                            Button(action: {
+                                isShowing = false
+                            }) {
+                                Text("닫기")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            .padding(.top, 4)
                         }
-                        .padding(.top, 4)
+                        .padding(32)
                     }
-                    .padding(32)
                     .background(Color.black.opacity(0.8))
                     .cornerRadius(16)
                     .transition(.opacity)
+                    .frame(maxWidth: min(UIScreen.main.bounds.width - 40, 360))
+                    .frame(maxHeight: min(UIScreen.main.bounds.height - 120, 600))
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
