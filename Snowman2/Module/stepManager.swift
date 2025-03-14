@@ -361,9 +361,6 @@ class StepManager: ObservableObject {
                 currentDailySteps.currentSpeed = speed
             }
         }
-        
-        // 아이템 획득 확인
-        itemManager.checkItemDrop(currentSteps: newSteps)
     }
     
     // 아이템 선택 업데이트
