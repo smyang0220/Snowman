@@ -603,11 +603,6 @@ struct SnowmanCompletionPopup: View {
                                             .scaledToFit()
                                             .frame(width: 100, height: 100)
                                     }
-                                } else {
-                                    // 아이템이 없는 경우에 대한 처리
-                                    Text("아이템 없음")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
                                 }
                                    }
                         .frame(width: 100,height: 100)
