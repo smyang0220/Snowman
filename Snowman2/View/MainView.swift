@@ -29,11 +29,19 @@ struct MainView: View {
     
     @State private var completedSnowmanRecord: SnowmanRecord?
     
-    // 걸음수
-    private func stepOptions() -> [Int] {
-        // 100부터 20000까지 100단위로 값 생성
-        return stride(from: 100, through: 20000, by: 100).map { $0 }
+    // 랜덤 걸음수 설정 함수
+    private func setRandomSteps(range: ClosedRange<Int>) {
+        // 범위 내 랜덤 값 생성 (100 단위로 반올림)
+        let randomSteps = (Int.random(in: range) / 100) * 100
+        print("랜덤 목표 걸음수: \(randomSteps)")
+        
+        // 목표 걸음수 업데이트
+        stepManager.updateNextTargetSteps(to: randomSteps)
+        
+        // 시트 닫기
+        showingTargetPicker = false
     }
+    
     
     var body: some View {
         NavigationStack {
@@ -237,8 +245,6 @@ struct MainView: View {
                         
                         stepManager.requestMotionPermission()
                         stepManager.calPace()
-                        // 테스트용
-                        //                        stepManager.itemManager.resetAllItemsQuantity()
                     }
                     .sheet(isPresented: $showingWardrobe) {
                         SnowmanWardrobeView(stepManager: stepManager)
@@ -246,55 +252,66 @@ struct MainView: View {
                     }
                     .sheet(isPresented: $showingTargetPicker) {
                         VStack(spacing: 20) {
-                            Text("다음 눈사람의 목표 걸음수를 선택하세요")
-                                .font(.headline)
-                                .padding(.top)
-                            
-                            Picker("목표 걸음수", selection: $selectedTargetSteps) {
-                                ForEach(stepOptions(), id: \.self) { steps in
-                                    Text("\(steps) 걸음").tag(steps)
-                                }
-                            }
-                            .pickerStyle(WheelPickerStyle())
-                            
-                            HStack(spacing: 20) {
-                                Button(action: {
-                                    showingTargetPicker = false
-                                }) {
-                                    Text("취소")
-                                        .fontWeight(.semibold)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(Color.gray.opacity(0.2))
-                                        .foregroundColor(.gray)
-                                        .cornerRadius(10)
-                                }
-                                
-                                Button(action: {
-                                    // 디버깅용 로그 추가
-                                    print("선택한 값: \(selectedTargetSteps)")
+                                HStack(spacing: 12) {
+                                    RangeButton(
+                                        title: "편의점",
+                                        subtitle: "100~1000걸음",
+                                        range: 100...1000,
+                                        icon: "storefront.fill",
+                                        color: .green,
+                                        onSelect: setRandomSteps
+                                    )
                                     
-                                    // 선택한 값으로 다음 목표 걸음수 설정
-                                    stepManager.updateNextTargetSteps(to: selectedTargetSteps)
+                                    RangeButton(
+                                        title: "공원",
+                                        subtitle: "1000~5000걸음",
+                                        range: 1000...5000,
+                                        icon: "leaf.fill",
+                                        color: .blue,
+                                        onSelect: setRandomSteps
+                                    )
                                     
-                                    // 짧은 지연 후 시트 닫기
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        showingTargetPicker = false
-                                    }
-                                }) {
-                                    Text("확인")
-                                        .fontWeight(.semibold)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(10)
+                                    RangeButton(
+                                        title: "시내",
+                                        subtitle: "5000~10000걸음",
+                                        range: 5000...10000,
+                                        icon: "bus.fill",
+                                        color: .orange,
+                                        onSelect: setRandomSteps
+                                    )
                                 }
-                            }
-                            .padding(.horizontal)
+                            
+                                HStack(spacing: 12) {
+                                    RangeButton(
+                                        title: "국내여행",
+                                        subtitle: "10000~15000걸음",
+                                        range: 10000...15000,
+                                        icon: "car.fill",
+                                        color: .red,
+                                        onSelect: setRandomSteps
+                                    )
+                                    
+                                    RangeButton(
+                                        title: "해외여행",
+                                        subtitle: "15000~30000걸음",
+                                        range: 15000...30000,
+                                        icon: "airplane.departure",
+                                        color: .purple,
+                                        onSelect: setRandomSteps
+                                    )
+                                    
+                                    RangeButton(
+                                        title: "스-노우맨",
+                                        subtitle: "30000걸음 이상",
+                                        range: 30000...100000,
+                                        icon: "snowflake",
+                                        color: .red,
+                                        onSelect: setRandomSteps
+                                    )
+                                }
                         }
-                        .padding(.bottom, 20)
-                        .presentationDetents([.height(300)])
+                        .padding()
+                        .presentationDetents([.height(280)])
                     }
                     
                     // 눈사람 완성 팝업 오버레이
@@ -394,6 +411,8 @@ struct MainView: View {
                 }
             }
         }
+        
+        
     }
     
     // 완성 버튼 클릭 시 호출되는 메서드
@@ -690,5 +709,39 @@ struct RoundedCorner: Shape {
             cornerRadii: CGSize(width: radius, height: radius)
         )
         return Path(path.cgPath)
+    }
+}
+
+
+struct RangeButton: View {
+    let title: String
+    let subtitle: String
+    let range: ClosedRange<Int>
+    let icon: String
+    let color: Color
+    let onSelect: (ClosedRange<Int>) -> Void
+    
+    var body: some View {
+        Button(action: {
+            onSelect(range)
+        }) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 22))
+                    .foregroundColor(color)
+                
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(color.opacity(0.1))
+            .cornerRadius(12)
+        }
     }
 }
