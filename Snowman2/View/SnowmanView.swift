@@ -1,6 +1,7 @@
 import SceneKit
 import SwiftUI
 
+// MARK: 3D　눈사람
 struct SnowmanView: UIViewRepresentable {
     var currentSpeed: Double
     var currentSteps: Int
