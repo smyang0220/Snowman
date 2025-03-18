@@ -135,6 +135,7 @@ class StepManager: ObservableObject {
         }
     }
     
+    
     // 현재 데이터 로드
     private func loadCurrentData() {
         if let currentDailySteps = realm.objects(DailySteps.self).first {
