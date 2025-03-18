@@ -44,7 +44,6 @@ struct MainView: View {
                         .ignoresSafeArea()
                     
                     // 메인 콘텐츠
-                    ScrollView {
                         VStack(spacing: 0) {
                             // 눈사람 뷰
                             SnowmanView(
@@ -230,7 +229,7 @@ struct MainView: View {
                             
                             Spacer(minLength: 80)
                         }
-                    }
+                    
                     .blur(radius: isRunningModeEnabled ? 1.5 : 0)
                     .onAppear {
                         // onAppear에서 기본 selectedTargetSteps 값을 현재 목표로 설정
