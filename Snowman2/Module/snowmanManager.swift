@@ -253,7 +253,7 @@ func updateScaleAndPosition(
 
 // 카메라 위치 업데이트 함수
 func updateCameraPosition(for camera: SCNNode, currentSteps: Int) {
-    let baseY = 1.0
+    let baseY = 1.6
     let baseZ = 6.0
     
     // 스텝에 따른 증분 계산
