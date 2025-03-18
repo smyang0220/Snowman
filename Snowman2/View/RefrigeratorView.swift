@@ -1,6 +1,7 @@
 import SceneKit
 import SwiftUI
 
+// MARK: 3D 냉동실 ( 크기별로 냉동실, 이글루, 북극, 아파트 이렇게 해볼 예정 )
 struct RefrigeratorView: UIViewRepresentable {
     var snowmanRecord: SnowmanRecord  // 표시할 눈사람 레코드
     

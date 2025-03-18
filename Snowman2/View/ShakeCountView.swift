@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreMotion
 
+// MARK: 미사용 추후 추가 기능
 struct ShakeCountView: View {
     // 상태 관리를 위한 ObservableObject
        @StateObject private var shakeManager = ShakeManager()

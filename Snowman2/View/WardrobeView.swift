@@ -1,6 +1,7 @@
 import SwiftUI
 import RealmSwift
 
+// MARK: 옷장
 struct SnowmanWardrobeView: View {
     @ObservedObject var stepManager: StepManager
     @State private var selectedItems: [String] = []

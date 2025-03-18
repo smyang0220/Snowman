@@ -1,9 +1,27 @@
 import SwiftUI
 import RealmSwift
 
+extension MainView {
+    func checkAndStartTutorial() {
+        
+        // Realm에서 완성된 눈사람이 있는지 확인
+        let realm = try! Realm()
+        let completedSnowmen = realm.objects(SnowmanRecord.self)
+        
+        // 완성된 눈사람이 없고 튜토리얼을 완료하지 않았으면 시작
+        if completedSnowmen.isEmpty && !UserDefaults.standard.bool(forKey: "tutorialCompleted") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                tutorialManager.startTutorial()
+            }
+        }
+    }
+}
+
+// MARK: 메인화면
 struct MainView: View {
     @StateObject private var stepManager = StepManager()
     @StateObject private var itemManager = ItemManager()
+    @StateObject private var tutorialManager = TutorialManager()
     @State private var showingNewItemAlert = false
     @State private var newItemName = ""
     @State private var navigateToCompletedSnowmen = false
@@ -41,6 +59,7 @@ struct MainView: View {
         // 시트 닫기
         showingTargetPicker = false
     }
+    
     
     
     var body: some View {
@@ -225,7 +244,8 @@ struct MainView: View {
                                     title: "냉동실",
                                     icon: "refrigerator.fill",
                                     color: Color.blue,
-                                    action: { navigateToCompletedSnowmen = true }
+                                    action: { navigateToCompletedSnowmen = true
+                                    }
                                 )
                             }
                             .padding(.horizontal)
@@ -245,6 +265,10 @@ struct MainView: View {
                         
                         stepManager.requestMotionPermission()
                         stepManager.calPace()
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                checkAndStartTutorial()
+                            }
                     }
                     .sheet(isPresented: $showingWardrobe) {
                         SnowmanWardrobeView(stepManager: stepManager)
@@ -409,6 +433,18 @@ struct MainView: View {
                         Spacer()
                     }
                 }
+                .overlay(
+                    ZStack {
+                        if tutorialManager.isShowingTutorial {
+                            GeometryReader { geometry in
+                                TutorialOverlayView(
+                                    tutorialManager: tutorialManager,
+                                    geometryProxy: geometry
+                                )
+                            }
+                        }
+                    }
+                )
             }
         }
         
